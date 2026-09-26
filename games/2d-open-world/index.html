@@ -2,7 +2,7 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>2D Open World</title>
 <style>
 html,body{margin:0;height:100%;overflow:hidden;background:#0b1220;font-family:system-ui,sans-serif;color:#fff;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}canvas{display:block;width:100%;height:100%;image-rendering:auto}
-#start{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;background:#07111f}#play{border:0;border-radius:16px;padding:16px 38px;font:800 22px system-ui;color:#fff;background:#2563eb;box-shadow:0 8px 30px #0006}#start.hide{display:none}.touch{position:fixed;z-index:10;bottom:18px;left:18px;width:105px;height:105px;border-radius:50%;background:#0f1b2dcc;border:2px solid #64748b99;touch-action:none}.stick{position:absolute;left:50%;top:50%;width:44px;height:44px;margin:-22px;border-radius:50%;background:#64748bcc;border:2px solid #cbd5e1;box-shadow:0 4px 18px #0006;touch-action:none}#hit{position:fixed;z-index:10;right:24px;bottom:26px;width:82px;height:82px;border-radius:50%;border:2px solid #fca5a5;background:#991b1bcc;color:#fff;font-size:34px;font-weight:800;box-shadow:0 5px 18px #0007;touch-action:none;user-select:none}#hit:active{transform:scale(.92);background:#dc2626}
+#start{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;background:#07111f}#play{border:0;border-radius:16px;padding:16px 38px;font:800 22px system-ui;color:#fff;background:#2563eb;box-shadow:0 8px 30px #0006}#start.hide{display:none}#lobby{width:min(360px,88vw);padding:24px;border:1px solid #ffffff30;border-radius:22px;background:#0b1728ee;box-shadow:0 18px 50px #0008;text-align:center;backdrop-filter:blur(12px)}#lobby h2{margin:0 0 18px;font-size:25px}#lobby input{box-sizing:border-box;width:100%;height:46px;margin-bottom:10px;padding:0 13px;border:1px solid #ffffff2e;border-radius:12px;background:#111f33;color:#fff;outline:none;font:600 15px system-ui}#lobby button{height:46px;border:0;border-radius:12px;padding:0 16px;background:#2563eb;color:#fff;font:800 14px system-ui;cursor:pointer}#createRoom{width:100%;margin-bottom:10px}.joinRow{display:flex;gap:8px}.joinRow input{margin:0;text-transform:uppercase}.joinRow button{width:90px}.joinRow input::placeholder{color:#94a3b8}.joinRow input{letter-spacing:2px}.joinRow+ #roomStatus{}#roomStatus{min-height:20px;margin:13px 0 0;color:#cbd5e1;font:600 12px system-ui;line-height:1.4}.touch{position:fixed;z-index:10;bottom:18px;left:18px;width:105px;height:105px;border-radius:50%;background:#0f1b2dcc;border:2px solid #64748b99;touch-action:none}.stick{position:absolute;left:50%;top:50%;width:44px;height:44px;margin:-22px;border-radius:50%;background:#64748bcc;border:2px solid #cbd5e1;box-shadow:0 4px 18px #0006;touch-action:none}#hit{position:fixed;z-index:10;right:24px;bottom:26px;width:82px;height:82px;border-radius:50%;border:2px solid #fca5a5;background:#991b1bcc;color:#fff;font-size:34px;font-weight:800;box-shadow:0 5px 18px #0007;touch-action:none;user-select:none}#hit:active{transform:scale(.92);background:#dc2626}
 #hpbar{position:fixed;z-index:11;top:14px;left:14px;width:156px;height:16px;padding:2px;border:1px solid #ffffff55;border-radius:999px;background:#0b1220cc;box-shadow:0 4px 14px #0005;overflow:hidden;backdrop-filter:blur(8px)}#hpfill{height:100%;width:100%;border-radius:999px;background:linear-gradient(90deg,#22c55e,#4ade80);transition:width .18s ease}
 #minimap{position:fixed;z-index:11;top:14px;right:14px;width:220px;height:150px;border:2px solid #ffffff99;border-radius:14px;background:#16351f;box-shadow:0 7px 24px #0009;image-rendering:auto;backdrop-filter:blur(6px)}
 #hit{position:fixed;z-index:10;right:22px;bottom:22px;width:76px;height:76px;border-radius:50%;border:1px solid #ffffff66;background:linear-gradient(145deg,#b91c1cdd,#7f1d1ddd);color:#fff;font-size:31px;font-weight:800;box-shadow:0 7px 22px #0008;touch-action:none;user-select:none;transition:transform .08s ease,filter .12s ease}#hit:active{transform:scale(.91);filter:brightness(1.2)}
@@ -10,7 +10,16 @@ html,body{margin:0;height:100%;overflow:hidden;background:#0b1220;font-family:sy
 #fire{position:fixed;z-index:10;right:112px;bottom:22px;width:68px;height:68px;border-radius:50%;border:1px solid #ffffff66;background:linear-gradient(145deg,#475569dd,#1e293bdd);color:#fff;font-size:26px;font-weight:900;box-shadow:0 7px 22px #0008;touch-action:none;user-select:none;transition:transform .08s ease,filter .12s ease}#fire:active{transform:scale(.91);filter:brightness(1.2)}#weapon{position:fixed;z-index:11;right:22px;bottom:104px;padding:6px 10px;border-radius:10px;background:#0b1220cc;border:1px solid #ffffff44;font:700 12px system-ui;backdrop-filter:blur(6px)}
 @media (pointer:fine) and (min-width:800px){.touch{display:none}}
 </style></head><body>
-<div id="start"><button id="play">PLAY</button></div><canvas id="game"></canvas>
+<div id="start">
+  <div id="lobby">
+    <h2>2D Open World</h2>
+    <input id="playerName" maxlength="14" placeholder="Your name" value="Player">
+    <button id="createRoom">CREATE ROOM</button>
+    <div class="joinRow"><input id="roomCode" maxlength="6" placeholder="Room code"><button id="joinRoom">JOIN</button></div>
+    <div id="roomStatus">Create a room or join one. Max 6 players.</div>
+    <button id="play" style="display:none">PLAY</button>
+  </div>
+</div><canvas id="game"></canvas>
 <div id="hpbar"><div id="hpfill"></div></div><canvas id="minimap" width="440" height="300" aria-label="Mini map"></canvas><div class="touch" id="joystick" aria-label="Movement joystick"><div class="stick" id="stick"></div></div><button id="hit" aria-label="Attack">⚔</button><button id="fire" aria-label="Fire">●</button><div id="weapon">Fists</div>
 <script>
 (()=>{const c=document.getElementById("game"),ctx=c.getContext("2d"),start=document.getElementById("start"),play=document.getElementById("play"),hitBtn=document.getElementById("hit"),fireBtn=document.getElementById("fire"),weaponEl=document.getElementById("weapon"),mm=document.getElementById("minimap"),mctx=mm.getContext("2d"),hpfill=document.getElementById("hpfill");let W,H,dpr,keys={},touch={},coins=0,attackUntil=0,fireUntil=0,lastDir={x:1,y:0},kills=0,waveSize=3,aliveTarget=3,audio=null,lastStep=0,lastZombieSound=0;
@@ -23,6 +32,40 @@ function zombieSound(){tone(115,.35,"sawtooth",.025,-55)}
 function checkOrientation(){if(innerHeight>innerWidth)landscape()}
 addEventListener("resize",checkOrientation);addEventListener("orientationchange",checkOrientation);play.addEventListener("click",async()=>{initAudio();await landscape();start.classList.add("hide")});start.addEventListener("pointerdown",async e=>{if(e.target===start){initAudio();await landscape();start.classList.add("hide")}});checkOrientation();
 const world={w:3200,h:2200},player={x:1600,y:1100,r:18,s:4.2,hp:100},cam={x:0,y:0},trees=[],rocks=[],coinsList=[],houses=[],zombies=[],guns=[];
+const playerNameEl=document.getElementById("playerName"),roomCodeEl=document.getElementById("roomCode"),createRoomBtn=document.getElementById("createRoom"),joinRoomBtn=document.getElementById("joinRoom"),roomStatus=document.getElementById("roomStatus");
+let peer=null,hostConn=null,isHost=false,roomCode="",myId="",remotePlayers={},connections=[];
+function setRoomStatus(t){roomStatus.textContent=t}
+function makeRoomCode(){const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";let x="";for(let i=0;i<6;i++)x+=chars[Math.floor(Math.random()*chars.length)];return x}
+function safeName(){return (playerNameEl.value.trim()||"Player").slice(0,14)}
+function openGame(){start.classList.add("hide");initAudio();landscape()}
+function packState(){return {type:"state",players:Object.fromEntries([[myId,{x:player.x,y:player.y,hp:player.hp,name:safeName(),dir:lastDir}],...Object.entries(remotePlayers).map(([id,p])=>[id,p])])}}
+function broadcast(data){for(const c of connections)if(c.open)c.send(data)}
+function hostAccept(conn){
+  if(connections.length>=5){conn.send({type:"full"});setTimeout(()=>conn.close(),200);return}
+  connections.push(conn);
+  conn.on("data",d=>{if(d.type==="input"){remotePlayers[conn.peer]={x:d.x,y:d.y,hp:d.hp,name:d.name,dir:d.dir};broadcast(packState())}else if(d.type==="leave"){delete remotePlayers[conn.peer];broadcast(packState())}});
+  conn.on("close",()=>{connections=connections.filter(x=>x!==conn);delete remotePlayers[conn.peer];broadcast(packState())});
+  remotePlayers[conn.peer]={x:1600+Math.random()*100-50,y:1100+Math.random()*100-50,hp:100,name:"Player",dir:{x:1,y:0}};
+  conn.send({type:"welcome",id:myId,room:roomCode});
+  broadcast(packState());
+  setRoomStatus("Room "+roomCode+" • "+(connections.length+1)+"/6 players");
+}
+function startHost(){
+  roomCode=makeRoomCode();isHost=true;myId="host-"+roomCode;
+  peer=new Peer(myId);
+  peer.on("open",()=>{roomCodeEl.value=roomCode;setRoomStatus("Room "+roomCode+" ready • share this code • 1/6 players");createRoomBtn.textContent="ROOM CREATED";openGame()});
+  peer.on("connection",hostAccept);
+  peer.on("error",e=>setRoomStatus("Connection error. Try creating again."));
+}
+function startJoin(){
+  roomCode=roomCodeEl.value.trim().toUpperCase();if(roomCode.length!==6){setRoomStatus("Enter the 6-character room code.");return}
+  isHost=false;myId="guest-"+Math.random().toString(36).slice(2,10);
+  peer=new Peer(myId);
+  peer.on("open",()=>{hostConn=peer.connect("host-"+roomCode,{reliable:true});hostConn.on("open",()=>{setRoomStatus("Joined room "+roomCode+" • connecting…");openGame()});hostConn.on("data",d=>{if(d.type==="full"){setRoomStatus("Room is full (6/6).");return}if(d.type==="welcome"){myId=d.id+"-"+Math.random().toString(36).slice(2,6)}if(d.type==="state"){remotePlayers={...d.players};delete remotePlayers[myId]}});hostConn.on("close",()=>setRoomStatus("Host disconnected."))});
+  peer.on("error",()=>setRoomStatus("Could not join room. Check the code."));
+}
+createRoomBtn.addEventListener("click",startHost);joinRoomBtn.addEventListener("click",startJoin);
+roomCodeEl.addEventListener("input",()=>roomCodeEl.value=roomCodeEl.value.toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,6));
 function rand(a,b){return a+Math.random()*(b-a)}
 const gunTypes=[{name:"Pistol",damage:1,ammo:12,color:"#94a3b8"},{name:"SMG",damage:1,ammo:28,color:"#64748b"},{name:"Shotgun",damage:2,ammo:8,color:"#b45309"},{name:"Rifle",damage:3,ammo:10,color:"#334155"}];let weapon={name:"Fists",damage:0,ammo:0,maxAmmo:0,color:"#cbd5e1"};function addGuns(){for(let i=0;i<8;i++){const g=gunTypes[Math.floor(Math.random()*gunTypes.length)],x=rand(180,world.w-180),y=rand(180,world.h-180);guns.push({x,y,type:g,got:false})}}addGuns();
 function add(){for(let i=0;i<120;i++){let x=rand(80,world.w-80),y=rand(80,world.h-80);if(Math.hypot(x-player.x,y-player.y)<280)continue;trees.push({x,y,s:rand(.8,1.25)})}for(let i=0;i<35;i++)rocks.push({x:rand(70,world.w-70),y:rand(70,world.h-70),s:rand(.7,1.5)});for(let i=0;i<22;i++)coinsList.push({x:rand(100,world.w-100),y:rand(100,world.h-100),got:false});for(let i=0;i<9;i++)houses.push({x:1200+(i%3)*390,y:700+Math.floor(i/3)*350,w:150,h:110})}add();
@@ -41,7 +84,14 @@ let fireFx=0;
 function attack(){const now=performance.now();if(now<attackUntil)return;attackUntil=now+360;for(const z of zombies){const dx=z.x-player.x,dy=z.y-player.y,d=Math.hypot(dx,dy)||1;const dot=(dx*lastDir.x+dy*lastDir.y)/d;if(d<82&&dot>.15){z.hp--;z.hit=now+100;if(z.hp<=0){z.dead=now+180;kills++}}}}
 hitBtn.addEventListener("pointerdown",e=>{e.preventDefault();attack()});fireBtn.addEventListener("pointerdown",e=>{e.preventDefault();fire()});addEventListener("keydown",e=>{if(e.code==="Space"||e.key.toLowerCase()==="j"){e.preventDefault();attack()}if(e.key.toLowerCase()==="f"||e.code==="Enter"){e.preventDefault();fire()}});
 spawnWaveZombies();let nextSpawn=performance.now()+1500;
-function move(){pickupGun();let dx=(keys.d||keys.arrowright||touch.right?1:0)-(keys.a||keys.arrowleft||touch.left?1:0),dy=(keys.s||keys.arrowdown||touch.down?1:0)-(keys.w||keys.arrowup||touch.up?1:0);if(dx&&dy){dx*=.707;dy*=.707}if(dx||dy){lastDir={x:dx,y:dy};const m=Math.hypot(lastDir.x,lastDir.y);lastDir.x/=m;lastDir.y/=m;const nowStep=performance.now();if(nowStep-lastStep>310){footSound();lastStep=nowStep}}player.x=Math.max(35,Math.min(world.w-35,player.x+dx*player.s));player.y=Math.max(35,Math.min(world.h-35,player.y+dy*player.s));for(const q of coinsList)if(!q.got&&Math.hypot(player.x-q.x,player.y-q.y)<34){q.got=true;coins++;}const now=performance.now();if(zombies.some(z=>!z.dead&&Math.hypot(z.x-player.x,z.y-player.y)<280)&&now-lastZombieSound>1800){zombieSound();lastZombieSound=now}for(const z of zombies){if(z.dead)continue;const dx=player.x-z.x,dy=player.y-z.y,d=Math.hypot(dx,dy)||1;z.x+=dx/d*z.s;z.y+=dy/d*z.s;if(d<34&&now-z.hit>650){player.hp=Math.max(0,player.hp-8);z.hit=now;if(player.hp===0){player.x=rand(120,world.w-120);player.y=rand(120,world.h-120);player.hp=100;}}}for(let i=zombies.length-1;i>=0;i--)if(zombies[i].dead&&now>zombies[i].dead)zombies.splice(i,1);if(zombies.length===0&&kills>0){waveSize=Math.min(64,Math.max(3,waveSize*2));spawnWaveZombies();nextSpawn=now+1200}if(now>nextSpawn&&zombies.length<waveSize){spawnWaveZombies();nextSpawn=now+1800+Math.random()*2500}hpfill.style.width=player.hp+"%"}
+let lastNet=0;
+function sendNet(){
+  const now=performance.now(); if(now-lastNet<65)return; lastNet=now;
+  const d={type:"input",x:player.x,y:player.y,hp:player.hp,name:safeName(),dir:lastDir};
+  if(isHost){remotePlayers[myId]=d;broadcast(packState())}
+  else if(hostConn&&hostConn.open)hostConn.send(d);
+}
+function move(){pickupGun();let dx=(keys.d||keys.arrowright||touch.right?1:0)-(keys.a||keys.arrowleft||touch.left?1:0),dy=(keys.s||keys.arrowdown||touch.down?1:0)-(keys.w||keys.arrowup||touch.up?1:0);if(dx&&dy){dx*=.707;dy*=.707}if(dx||dy){lastDir={x:dx,y:dy};const m=Math.hypot(lastDir.x,lastDir.y);lastDir.x/=m;lastDir.y/=m;const nowStep=performance.now();if(nowStep-lastStep>310){footSound();lastStep=nowStep}}player.x=Math.max(35,Math.min(world.w-35,player.x+dx*player.s));player.y=Math.max(35,Math.min(world.h-35,player.y+dy*player.s));for(const q of coinsList)if(!q.got&&Math.hypot(player.x-q.x,player.y-q.y)<34){q.got=true;coins++;}const now=performance.now();if(zombies.some(z=>!z.dead&&Math.hypot(z.x-player.x,z.y-player.y)<280)&&now-lastZombieSound>1800){zombieSound();lastZombieSound=now}for(const z of zombies){if(z.dead)continue;const dx=player.x-z.x,dy=player.y-z.y,d=Math.hypot(dx,dy)||1;z.x+=dx/d*z.s;z.y+=dy/d*z.s;if(d<34&&now-z.hit>650){player.hp=Math.max(0,player.hp-8);z.hit=now;if(player.hp===0){player.x=rand(120,world.w-120);player.y=rand(120,world.h-120);player.hp=100;}}}for(let i=zombies.length-1;i>=0;i--)if(zombies[i].dead&&now>zombies[i].dead)zombies.splice(i,1);if(zombies.length===0&&kills>0){waveSize=Math.min(64,Math.max(3,waveSize*2));spawnWaveZombies();nextSpawn=now+1200}if(now>nextSpawn&&zombies.length<waveSize){spawnWaveZombies();nextSpawn=now+1800+Math.random()*2500}hpfill.style.width=player.hp+"%";sendNet()}
 function drawMinimap(){
   const mw=mm.width,mh=mm.height,sx=mw/world.w,sy=mh/world.h;
   mctx.clearRect(0,0,mw,mh);
@@ -102,5 +152,15 @@ for(const q of coinsList)if(!q.got){ctx.fillStyle="#facc15";ctx.beginPath();ctx.
 for(const z of zombies){if(z.dead&&performance.now()>z.dead)continue;ctx.fillStyle=z.hit>performance.now()?"#fff":"#7f1d1d";ctx.beginPath();ctx.arc(z.x,z.y,z.r,0,Math.PI*2);ctx.fill();ctx.fillStyle="#166534";ctx.beginPath();ctx.arc(z.x,z.y-10,13,Math.PI,0);ctx.fill();ctx.fillStyle="#fef2f2";ctx.beginPath();ctx.arc(z.x-6,z.y-2,3,0,Math.PI*2);ctx.arc(z.x+6,z.y-2,3,0,Math.PI*2);ctx.fill();ctx.fillStyle="#111827";ctx.fillRect(z.x-7,z.y+7,14,3);ctx.fillStyle="#ef4444";ctx.fillRect(z.x-18,z.y-30,36,4);ctx.fillStyle="#22c55e";ctx.fillRect(z.x-18,z.y-30,18*z.hp,4)}
 if(fireFx>performance.now()){ctx.save();ctx.translate(player.x,player.y);ctx.rotate(Math.atan2(lastDir.y,lastDir.x));ctx.fillStyle="#fde047";ctx.beginPath();ctx.moveTo(22,0);ctx.lineTo(62,-10);ctx.lineTo(62,10);ctx.fill();ctx.fillStyle="#fff7ed";ctx.beginPath();ctx.arc(70,0,7,0,Math.PI*2);ctx.fill();ctx.restore()}
 ctx.save();ctx.translate(player.x,player.y);ctx.fillStyle="#2563eb";ctx.beginPath();ctx.arc(0,-11,12,0,Math.PI*2);ctx.fill();ctx.fillStyle="#1d4ed8";ctx.fillRect(-11,0,22,25);ctx.fillStyle="#f5cfa0";ctx.beginPath();ctx.arc(0,-12,7,0,Math.PI*2);ctx.fill();if(weapon.name!=="Fists"){ctx.strokeStyle="#111827";ctx.lineWidth=7;ctx.lineCap="round";ctx.beginPath();ctx.moveTo(8,5);ctx.lineTo(lastDir.x*28+8,lastDir.y*28+5);ctx.stroke();ctx.strokeStyle=weapon.color;ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(8,5);ctx.lineTo(lastDir.x*28+8,lastDir.y*28+5);ctx.stroke()}else{ctx.strokeStyle="#d1d5db";ctx.lineWidth=6;ctx.lineCap="round";ctx.beginPath();ctx.moveTo(8,5);ctx.lineTo(lastDir.x*30+8,lastDir.y*30+5);ctx.stroke();ctx.strokeStyle="#7c4a21";ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(8,5);ctx.lineTo(lastDir.x*18+8,lastDir.y*18+5);ctx.stroke()}if(performance.now()<attackUntil){ctx.strokeStyle="#f8fafc";ctx.lineWidth=7;ctx.beginPath();ctx.arc(0,0,58,Math.atan2(lastDir.y,lastDir.x)-.9,Math.atan2(lastDir.y,lastDir.x)+.9);ctx.stroke()}ctx.restore();
+// remote players
+for(const [id,p] of Object.entries(remotePlayers)){
+  if(id===myId||!p)continue;
+  ctx.save();ctx.translate(p.x,p.y);
+  ctx.fillStyle="#a855f7";ctx.beginPath();ctx.arc(0,-11,12,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle="#7e22ce";ctx.fillRect(-11,0,22,25);
+  ctx.fillStyle="#f5cfa0";ctx.beginPath();ctx.arc(0,-12,7,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle="#fff";ctx.font="700 12px system-ui";ctx.textAlign="center";ctx.fillText((p.name||"Player"),0,-31);
+  ctx.restore();
+}
 ctx.restore();drawMinimap()}
 function loop(){move();draw();requestAnimationFrame(loop)}loop()})();</script></body></html>
