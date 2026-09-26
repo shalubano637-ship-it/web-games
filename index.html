@@ -9,11 +9,13 @@
 </head>
 <body>
 <main class="portal">
-<header class="hero"><p class="eyebrow">WEB GAMES</p><h1>Play. Compete. Repeat.</h1><p class="subtitle">Simple browser games, built for mobile and desktop.</p></header>
+<header class="hero"><p class="eyebrow">WEB GAMES</p><h1>Play. Compete. Repeat.</h1><p class="subtitle">Simple browser games, built for mobile and desktop.</p><p id="last-update" class="last-update">Last update: checking…</p></header>
 <section class="games" aria-label="Games">
 <a class="game-card" href="games/coin-rush/"><span class="game-icon">🪙</span><span><strong>Coin Rush</strong><small>Collect coins. Avoid the enemy.</small></span><span class="arrow">→</span></a>
 <a class="game-card" href="games/3d-world/"><span class="game-icon">🌐</span><span><strong>3D World</strong><small>Explore an interactive 3D scene.</small></span><span class="arrow">→</span></a>
 </section>
 </main>
-</body>
+<script>
+(async()=>{const el=document.getElementById("last-update");try{const r=await fetch("https://api.github.com/repos/shalubano637-ship-it/web-games/commits/main",{headers:{Accept:"application/vnd.github+json"}});if(!r.ok)throw new Error();const d=await r.json();const date=new Date(d.commit.committer.date);el.textContent="Last update: "+date.toLocaleString(undefined,{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});}catch(e){el.textContent="Last update: unavailable";}})();
+</script></body>
 </html>
