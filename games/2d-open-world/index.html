@@ -123,30 +123,48 @@ function localMove(dt){
 function hostZombies(dt){for(const z of zombies){if(z.dead)continue;const dx=player.x-z.x,dz=player.z-z.z,d=Math.hypot(dx,dz)||1;z.x+=dx/d*z.s*dt;z.z+=dz/d*z.s*dt;z.mesh.position.set(z.x,0,z.z);z.mesh.rotation.y=Math.atan2(dx,dz);if(d<2.4&&performance.now()%800<20)player.hp=Math.max(0,player.hp-8)}if(zombies.filter(z=>!z.dead).length===0){wave=Math.min(48,wave*2);spawnWave()}if(zombies.some(z=>!z.dead&&Math.hypot(z.x-player.x,z.z-player.z)<22)&&performance.now()%1800<20)soundZombie()}
 function sendState(){const now=performance.now();if(now-netClock<70)return;netClock=now;const state={type:"state",players:{[myId]:{x:player.x,z:player.z,hp:player.hp,name:(nameEl.value||"Player").slice(0,14),rot:me.rotation.y}},zombies:zombies.filter(z=>!z.dead).map(z=>({x:z.x,z:z.z,hp:z.hp}))};if(isHost){for(const c of peerConns)c.open&&c.send(state)}else if(conn?.open)conn.send({type:"move",x:player.x,z:player.z,hp:player.hp,rot:me.rotation.y,name:(nameEl.value||"Player").slice(0,14)})}
 let peerConns=[];function code(){const a="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";return Array.from({length:6},()=>a[Math.floor(Math.random()*a.length)]).join("")}
-function peerErrorMessage(e){const m=e?.type||e?.message||"unknown";if(m==="network")return "Multiplayer unavailable — continuing solo.";if(m==="server-error")return "Multiplayer server unavailable — continuing solo.";return "Online room unavailable — playing solo."}
+function peerErrorMessage(e){const m=e?.type||e?.message||"unknown";return m==="network"?"Network connection unavailable. Playing solo.":m==="server-error"?"Online service unavailable. Playing solo.":"Online connection unavailable. Playing solo."}
 function setupHost(){
  if(typeof Peer==="undefined"){statusEl.textContent="Playing solo.";start.classList.add("hide");return}
  roomCode=code();myId="host-"+roomCode;isHost=true;peerConns=[];remote.clear();
  try{peer=new Peer(myId,{debug:0})}catch(e){start.classList.add("hide");return}
- peer.on("open",()=>{roomEl.textContent="Online • "+roomCode+" • 1/6";start.classList.add("hide");initAudio()});
+ peer.on("open",()=>{
+   history.replaceState(null,"","?room="+roomCode);
+   roomEl.textContent="Online • "+roomCode+" • 1/6";
+   start.classList.add("hide");initAudio();
+ });
  peer.on("connection",c=>{
    if(peerConns.length>=5){if(c.open)c.send({type:"full"});c.close();return}
-   peerConns.push(c);
-   c.on("open",()=>broadcast());
+   peerConns.push(c);c.on("open",()=>broadcast());
    c.on("data",d=>{if(d.type==="move"){let p=remote.get(c.peer);if(!p){p={...d,mesh:makePlayer(0x9333ea)};remote.set(c.peer,p)}else Object.assign(p,d);broadcast()}});
    c.on("close",()=>{remote.delete(c.peer);peerConns=peerConns.filter(x=>x!==c);broadcast()});
  });
  peer.on("error",e=>{console.warn("PeerJS:",e);isHost=false;roomEl.textContent="Solo";start.classList.add("hide");});
 }
-function broadcast(){
- const ps={};for(const [id,p] of remote)ps[id]=p;
- ps[myId]={x:player.x,z:player.z,hp:player.hp,name:(nameEl.value||"Player").slice(0,14),rot:me.rotation.y};
- const st={type:"state",players:ps};
- for(const c of peerConns)if(c.open)try{c.send(st)}catch(_){}
- roomEl.textContent="Online • "+roomCode+" • "+(peerConns.length+1)+"/6";
+function setupJoin(room){
+ if(typeof Peer==="undefined"){start.classList.add("hide");return}
+ roomCode=room.toUpperCase();myId="guest-"+Math.random().toString(36).slice(2);
+ try{peer=new Peer(myId,{debug:0})}catch(e){start.classList.add("hide");return}
+ peer.on("open",()=>{
+   conn=peer.connect("host-"+roomCode,{reliable:true});
+   conn.on("open",()=>{start.classList.add("hide");initAudio();roomEl.textContent="Online • "+roomCode;});
+   conn.on("data",d=>{
+     if(d.type==="full"){history.replaceState(null,"",location.pathname);roomEl.textContent="Solo";statusEl.textContent="Room full.";return}
+     if(d.type==="state"){
+       for(const id in d.players){if(id===myId)continue;let p=remote.get(id);if(!p){p={...d.players[id],mesh:makePlayer(0x9333ea)};remote.set(id,p)}else Object.assign(p,d.players[id])}
+       for(const [id,p] of remote)if(!d.players[id]){scene.remove(p.mesh);remote.delete(id)}
+       roomEl.textContent="Online • "+roomCode+" • "+Object.keys(d.players).length+"/6";
+     }
+   });
+   conn.on("close",()=>{roomEl.textContent="Solo";statusEl.textContent="Host disconnected."});
+ });
+ peer.on("error",e=>{console.warn("PeerJS:",e);roomEl.textContent="Solo";start.classList.add("hide")});
 }
-function setupJoin(){return false}
 createBtn.onclick=()=>{createBtn.disabled=true;statusEl.textContent="Loading world...";setupHost()};
+const sharedRoom=new URLSearchParams(location.search).get("room");
+if(sharedRoom&&/^[A-Z0-9]{6}$/i.test(sharedRoom)){statusEl.textContent="Joining multiplayer...";setupJoin(sharedRoom)}else{}
+// If opened without a room, the single PLAY button starts a room automatically.
+// Share the resulting page URL to let friends join the same world.
 function drawMinimap(){const w=mm.width,h=mm.height,sx=w/world.w,sz=h/world.h;mctx.clearRect(0,0,w,h);mctx.fillStyle="#26382f";mctx.fillRect(0,0,w,h);mctx.fillStyle="#414746";mctx.fillRect(0,(world.h/2-14)*sz,w,28*sz);mctx.fillRect((world.w/2-14)*sx,0,28*sx,h);for(const q of houses){mctx.fillStyle="#665c4f";mctx.fillRect((q.x+world.w/2)*sx-8,(q.z+world.h/2)*sz-6,16,12)}for(const t of trees){mctx.fillStyle="#38533d";mctx.beginPath();mctx.arc((t.x+world.w/2)*sx,(t.z+world.h/2)*sz,3,0,7);mctx.fill()}for(const g of guns)if(!g.userData.taken){mctx.fillStyle="#facc15";mctx.beginPath();mctx.arc((g.position.x+world.w/2)*sx,(g.position.z+world.h/2)*sz,4,0,7);mctx.fill()}for(const [id,p] of remote){mctx.fillStyle="#a855f7";mctx.beginPath();mctx.arc((p.x+world.w/2)*sx,(p.z+world.h/2)*sz,6,0,7);mctx.fill()}for(const z of zombies)if(!z.dead){mctx.fillStyle="#ef4444";mctx.beginPath();mctx.arc((z.x+world.w/2)*sx,(z.z+world.h/2)*sz,5,0,7);mctx.fill()}mctx.fillStyle="#38bdf8";mctx.beginPath();mctx.arc((player.x+world.w/2)*sx,(player.z+world.h/2)*sz,7,0,7);mctx.fill()}
 const clock=new THREE.Clock();function loop(){requestAnimationFrame(loop);const dt=Math.min(clock.getDelta(),.05);localMove(dt);if(isHost)hostZombies(dt);for(const [id,p] of remote){if(p.mesh){p.mesh.position.lerp(new THREE.Vector3(p.x,0,p.z),.35);p.mesh.rotation.y=p.rot||0}}const target=new THREE.Vector3(player.x,2.2,player.z);const dist=17;const horiz=Math.cos(cameraPitch)*dist;const desired=new THREE.Vector3(player.x+Math.sin(cameraYaw)*horiz,7+Math.sin(cameraPitch)*dist,player.z+Math.cos(cameraYaw)*horiz);camera.position.lerp(desired,.12);camera.lookAt(target);hpEl.style.width=player.hp+"%";sendState();drawMinimap();renderer.render(scene,camera)}loop();
 addEventListener("resize",()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);hint.classList.add("hidden")});
