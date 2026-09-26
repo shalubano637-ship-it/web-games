@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>3D World</title>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js"}}
+</script>
 <style>
 html,body{margin:0;height:100%;overflow:hidden;background:#07111f;color:#fff;font-family:system-ui,sans-serif}
 #ui{position:fixed;z-index:2;top:14px;left:14px;right:14px;display:flex;justify-content:space-between;gap:10px;pointer-events:none}
@@ -17,7 +20,7 @@ canvas{display:block}
 <div id="ui"><div class="panel"><b>3D World</b><div id="info">Drag to rotate · Scroll to zoom</div></div><button id="reset">Reset View</button></div>
 <div id="hint" class="panel">Explore the scene</div>
 <script type="module">
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
+import * as THREE from "three";
 import {OrbitControls} from "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/controls/OrbitControls.js";
 
 const scene=new THREE.Scene();
