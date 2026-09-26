@@ -13,7 +13,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#111922;fon
 import * as THREE from "three";
 const canvas=document.getElementById("game"),start=document.getElementById("start"),nameEl=document.getElementById("name"),codeEl=document.getElementById("code"),createBtn=document.getElementById("create"),joinBtn=document.getElementById("join"),statusEl=document.getElementById("status"),roomEl=document.getElementById("room"),hpEl=document.getElementById("hp"),weaponEl=document.getElementById("weapon"),hint=document.getElementById("hint"),mm=document.getElementById("minimap"),mctx=mm.getContext("2d"),joy=document.getElementById("joy"),stick=document.getElementById("stick");
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x27343a);scene.fog=new THREE.Fog(0x27343a,55,300);
-const camera=new THREE.OrthographicCamera(-30,30,20,-20,.1,700);camera.position.set(0,34,30);camera.zoom=1.25;camera.lookAt(0,0,0);
+const camera=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,.1,700);camera.position.set(0,9,15);camera.lookAt(0,2,0);
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=.82;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 scene.add(new THREE.HemisphereLight(0x9eb4bd,0x17231d,.9));const sun=new THREE.DirectionalLight(0xffe2ad,2.8);sun.position.set(-80,140,55);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-180;sun.shadow.camera.right=180;sun.shadow.camera.top=140;sun.shadow.camera.bottom=-140;scene.add(sun);
 const world={w:320,h:220},player={x:0,z:0,y:0,hp:100,dir:new THREE.Vector3(0,0,-1)},remote=new Map(),zombies=[],guns=[],trees=[],houses=[];let weapon={name:"Fists",damage:0,ammo:0,maxAmmo:0,color:0xcbd5e1},kills=0,wave=3,lastFire=0,lastAttack=0,audio=null,peer=null,conn=null,isHost=false,myId="",roomCode="",netClock=0;
@@ -87,7 +87,7 @@ let joyId=null,touch={x:0,z:0};
 function joyMove(e){const r=joy.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,max=r.width*.32;let x=e.clientX-cx,z=e.clientY-cy,d=Math.hypot(x,z);if(d>max){x=x/d*max;z=z/d*max}stick.style.transform="translate("+x+"px,"+z+"px)";touch={x:x/max,z:z/max}}
 joy.addEventListener("pointerdown",e=>{joyId=e.pointerId;joy.setPointerCapture(e.pointerId);joyMove(e)});joy.addEventListener("pointermove",e=>{if(e.pointerId===joyId)joyMove(e)});["pointerup","pointercancel"].forEach(k=>joy.addEventListener(k,()=>{joyId=null;touch={x:0,z:0};stick.style.transform="translate(0,0)"}));
 let keys={};addEventListener("keydown",e=>{keys[e.key.toLowerCase()]=true;if(e.code==="Space")attack();if(e.key.toLowerCase()==="f"||e.code==="Enter")fire()});addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);document.getElementById("fire").onpointerdown=e=>{e.preventDefault();fire()};document.getElementById("attack").onpointerdown=e=>{e.preventDefault();attack()};
-let dragging=false,lastX=0,lastY=0;
+let dragging=false,lastX=0,lastY=0, cameraYaw=0;
 addEventListener("pointerdown",e=>{
   if(e.target.closest&&e.target.closest(".joy,.action,#lobby"))return;
   if(e.clientX>innerWidth*.28&&e.clientY<innerHeight*.78){dragging=true;lastX=e.clientX;lastY=e.clientY}
@@ -95,12 +95,30 @@ addEventListener("pointerdown",e=>{
 addEventListener("pointermove",e=>{
   if(!dragging)return;
   const dx=e.clientX-lastX,dy=e.clientY-lastY;lastX=e.clientX;lastY=e.clientY;
-  me.rotation.y-=dx*.008;
-  player.dir.set(-Math.sin(me.rotation.y),0,-Math.cos(me.rotation.y));
+  cameraYaw-=dx*.008;
+  me.rotation.y=cameraYaw;
+  player.dir.set(-Math.sin(cameraYaw),0,-Math.cos(cameraYaw));
 });
 addEventListener("pointerup",()=>dragging=false);
 addEventListener("pointercancel",()=>dragging=false);
-function localMove(dt){let x=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+touch.x,z=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0)+touch.z;if(x||z){const l=Math.hypot(x,z)||1;x/=l;z/=l;const speed=9;player.x+=x*speed*dt;player.z+=z*speed*dt;player.x=Math.max(-150,Math.min(150,player.x));player.z=Math.max(-100,Math.min(100,player.z));if(!dragging){me.rotation.y=Math.atan2(-x,-z);player.dir.set(x,0,z)}if(performance.now()%310<18)soundStep()}me.position.set(player.x,0,player.z);pickup()}
+function localMove(dt){
+ let sx=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+touch.x;
+ let sz=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0)+touch.z;
+ if(sx||sz){
+   const l=Math.hypot(sx,sz)||1;sx/=l;sz/=l;
+   const forward=new THREE.Vector3(-Math.sin(me.rotation.y),0,-Math.cos(me.rotation.y));
+   const right=new THREE.Vector3(Math.cos(me.rotation.y),0,-Math.sin(me.rotation.y));
+   const move=forward.multiplyScalar(-sz).add(right.multiplyScalar(sx));
+   move.y=0;move.normalize();
+   const speed=9;
+   player.x+=move.x*speed*dt;player.z+=move.z*speed*dt;
+   player.x=Math.max(-150,Math.min(150,player.x));player.z=Math.max(-100,Math.min(100,player.z));
+   // Movement direction changes the character direction, but NEVER turns the camera automatically.
+   player.dir.set(move.x,0,move.z);
+   if(performance.now()%310<18)soundStep()
+ }
+ me.position.set(player.x,0,player.z);pickup()
+}
 function hostZombies(dt){for(const z of zombies){if(z.dead)continue;const dx=player.x-z.x,dz=player.z-z.z,d=Math.hypot(dx,dz)||1;z.x+=dx/d*z.s*dt;z.z+=dz/d*z.s*dt;z.mesh.position.set(z.x,0,z.z);z.mesh.rotation.y=Math.atan2(dx,dz);if(d<2.4&&performance.now()%800<20)player.hp=Math.max(0,player.hp-8)}if(zombies.filter(z=>!z.dead).length===0){wave=Math.min(48,wave*2);spawnWave()}if(zombies.some(z=>!z.dead&&Math.hypot(z.x-player.x,z.z-player.z)<22)&&performance.now()%1800<20)soundZombie()}
 function sendState(){const now=performance.now();if(now-netClock<70)return;netClock=now;const state={type:"state",players:{[myId]:{x:player.x,z:player.z,hp:player.hp,name:(nameEl.value||"Player").slice(0,14),rot:me.rotation.y}},zombies:zombies.filter(z=>!z.dead).map(z=>({x:z.x,z:z.z,hp:z.hp}))};if(isHost){for(const c of peerConns)c.open&&c.send(state)}else if(conn?.open)conn.send({type:"move",x:player.x,z:player.z,hp:player.hp,rot:me.rotation.y,name:(nameEl.value||"Player").slice(0,14)})}
 let peerConns=[];function code(){const a="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";return Array.from({length:6},()=>a[Math.floor(Math.random()*a.length)]).join("")}
@@ -109,6 +127,6 @@ function broadcast(){const ps={};for(const [id,p] of remote)ps[id]=p;ps[myId]={x
 function setupJoin(){roomCode=codeEl.value.trim().toUpperCase();if(roomCode.length!==6){statusEl.textContent="Enter a 6-character room code.";return}myId="guest-"+Math.random().toString(36).slice(2);peer=new Peer(myId);peer.on("open",()=>{conn=peer.connect("host-"+roomCode,{reliable:true});conn.on("open",()=>{start.classList.add("hide");initAudio();roomEl.textContent="Room "+roomCode;});conn.on("data",d=>{if(d.type==="full"){statusEl.textContent="Room full (6/6).";return}if(d.type==="state"){for(const id in d.players){if(id===myId)continue;let p=remote.get(id);if(!p){p={...d.players[id],mesh:makePlayer(0x9333ea)};remote.set(id,p)}else Object.assign(p,d.players[id])}for(const [id,p] of remote){if(!d.players[id]){scene.remove(p.mesh);remote.delete(id)}}}});conn.on("close",()=>statusEl.textContent="Host disconnected.")});peer.on("error",()=>statusEl.textContent="Could not join room.")}
 createBtn.onclick=setupHost;joinBtn.onclick=setupJoin;codeEl.oninput=()=>codeEl.value=codeEl.value.toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,6);
 function drawMinimap(){const w=mm.width,h=mm.height,sx=w/world.w,sz=h/world.h;mctx.clearRect(0,0,w,h);mctx.fillStyle="#26382f";mctx.fillRect(0,0,w,h);mctx.fillStyle="#414746";mctx.fillRect(0,(world.h/2-14)*sz,w,28*sz);mctx.fillRect((world.w/2-14)*sx,0,28*sx,h);for(const q of houses){mctx.fillStyle="#665c4f";mctx.fillRect((q.x+world.w/2)*sx-8,(q.z+world.h/2)*sz-6,16,12)}for(const t of trees){mctx.fillStyle="#38533d";mctx.beginPath();mctx.arc((t.x+world.w/2)*sx,(t.z+world.h/2)*sz,3,0,7);mctx.fill()}for(const g of guns)if(!g.userData.taken){mctx.fillStyle="#facc15";mctx.beginPath();mctx.arc((g.position.x+world.w/2)*sx,(g.position.z+world.h/2)*sz,4,0,7);mctx.fill()}for(const [id,p] of remote){mctx.fillStyle="#a855f7";mctx.beginPath();mctx.arc((p.x+world.w/2)*sx,(p.z+world.h/2)*sz,6,0,7);mctx.fill()}for(const z of zombies)if(!z.dead){mctx.fillStyle="#ef4444";mctx.beginPath();mctx.arc((z.x+world.w/2)*sx,(z.z+world.h/2)*sz,5,0,7);mctx.fill()}mctx.fillStyle="#38bdf8";mctx.beginPath();mctx.arc((player.x+world.w/2)*sx,(player.z+world.h/2)*sz,7,0,7);mctx.fill()}
-const clock=new THREE.Clock();function loop(){requestAnimationFrame(loop);const dt=Math.min(clock.getDelta(),.05);localMove(dt);if(isHost)hostZombies(dt);for(const [id,p] of remote){if(p.mesh){p.mesh.position.lerp(new THREE.Vector3(p.x,0,p.z),.35);p.mesh.rotation.y=p.rot||0}}const target=new THREE.Vector3(player.x,0,player.z);const desired=new THREE.Vector3(player.x+Math.sin(me.rotation.y)*34,38,player.z+Math.cos(me.rotation.y)*34);camera.position.lerp(desired,.08);camera.lookAt(target);hpEl.style.width=player.hp+"%";sendState();drawMinimap();renderer.render(scene,camera)}loop();
-addEventListener("resize",()=>{const a=innerWidth/innerHeight;camera.left=-30*a;camera.right=30*a;camera.top=20;camera.bottom=-20;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);hint.classList.add("hidden")});
+const clock=new THREE.Clock();function loop(){requestAnimationFrame(loop);const dt=Math.min(clock.getDelta(),.05);localMove(dt);if(isHost)hostZombies(dt);for(const [id,p] of remote){if(p.mesh){p.mesh.position.lerp(new THREE.Vector3(p.x,0,p.z),.35);p.mesh.rotation.y=p.rot||0}}const target=new THREE.Vector3(player.x,2.0,player.z);const desired=new THREE.Vector3(player.x+Math.sin(cameraYaw)*16,8.5,player.z+Math.cos(cameraYaw)*16);camera.position.lerp(desired,.12);camera.lookAt(target);hpEl.style.width=player.hp+"%";sendState();drawMinimap();renderer.render(scene,camera)}loop();
+addEventListener("resize",()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);hint.classList.add("hidden")});
 </script></body></html>
