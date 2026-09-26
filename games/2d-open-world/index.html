@@ -2,16 +2,16 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>2D Open World</title>
 <style>
 html,body{margin:0;height:100%;overflow:hidden;background:#0b1220;font-family:system-ui,sans-serif;color:#fff;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}canvas{display:block;width:100%;height:100%;image-rendering:auto}
-.touch{position:fixed;z-index:10;bottom:18px;left:18px;width:105px;height:105px;border-radius:50%;background:#0f1b2dcc;border:2px solid #64748b99;touch-action:none}.stick{position:absolute;left:50%;top:50%;width:44px;height:44px;margin:-22px;border-radius:50%;background:#64748bcc;border:2px solid #cbd5e1;box-shadow:0 4px 18px #0006;touch-action:none}
+#start{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;background:#07111f}#play{border:0;border-radius:16px;padding:16px 38px;font:800 22px system-ui;color:#fff;background:#2563eb;box-shadow:0 8px 30px #0006}#start.hide{display:none}.touch{position:fixed;z-index:10;bottom:18px;left:18px;width:105px;height:105px;border-radius:50%;background:#0f1b2dcc;border:2px solid #64748b99;touch-action:none}.stick{position:absolute;left:50%;top:50%;width:44px;height:44px;margin:-22px;border-radius:50%;background:#64748bcc;border:2px solid #cbd5e1;box-shadow:0 4px 18px #0006;touch-action:none}
 @media (pointer:fine) and (min-width:800px){.touch{display:none}}
 </style></head><body>
-<canvas id="game"></canvas>
+<div id="start"><button id="play">PLAY</button></div><canvas id="game"></canvas>
 <div class="touch" id="joystick" aria-label="Movement joystick"><div class="stick" id="stick"></div></div>
 <script>
-(()=>{const c=document.getElementById("game"),ctx=c.getContext("2d");let W,H,dpr,keys={},touch={},coins=0;
-async function landscape(){if(!("ontouchstart"in window)&&navigator.maxTouchPoints===0)return;if(screen.orientation&&screen.orientation.type.startsWith("landscape"))return;try{if(document.documentElement.requestFullscreen&&!document.fullscreenElement)await document.documentElement.requestFullscreen();if(screen.orientation&&screen.orientation.lock)await screen.orientation.lock("landscape")}catch(e){}}
+(()=>{const c=document.getElementById("game"),ctx=c.getContext("2d"),start=document.getElementById("start"),play=document.getElementById("play");let W,H,dpr,keys={},touch={},coins=0;
+async function landscape(){try{if(document.fullscreenElement!==document.documentElement&&document.documentElement.requestFullscreen){await document.documentElement.requestFullscreen({navigationUI:"hide"})}}catch(e){}try{if(screen.orientation&&screen.orientation.lock)await screen.orientation.lock("landscape")}catch(e){}}
 function checkOrientation(){if(innerHeight>innerWidth)landscape()}
-addEventListener("resize",checkOrientation);addEventListener("orientationchange",checkOrientation);addEventListener("pointerdown",()=>landscape(),{once:true});checkOrientation();
+addEventListener("resize",checkOrientation);addEventListener("orientationchange",checkOrientation);play.addEventListener("click",async()=>{await landscape();start.classList.add("hide")});start.addEventListener("pointerdown",async e=>{if(e.target===start){await landscape();start.classList.add("hide")}});checkOrientation();
 const world={w:3200,h:2200},player={x:1600,y:1100,r:18,s:4.2},cam={x:0,y:0},trees=[],rocks=[],coinsList=[],houses=[];
 function rand(a,b){return a+Math.random()*(b-a)}
 function add(){for(let i=0;i<120;i++){let x=rand(80,world.w-80),y=rand(80,world.h-80);if(Math.hypot(x-player.x,y-player.y)<280)continue;trees.push({x,y,s:rand(.8,1.25)})}for(let i=0;i<35;i++)rocks.push({x:rand(70,world.w-70),y:rand(70,world.h-70),s:rand(.7,1.5)});for(let i=0;i<22;i++)coinsList.push({x:rand(100,world.w-100),y:rand(100,world.h-100),got:false});for(let i=0;i<9;i++)houses.push({x:1200+(i%3)*390,y:700+Math.floor(i/3)*350,w:150,h:110})}add();
