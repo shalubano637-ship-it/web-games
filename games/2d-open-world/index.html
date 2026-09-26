@@ -1,11 +1,13 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>2D Open World</title>
 <style>
+@media (orientation:portrait){#rotate{display:flex!important}}
+#rotate{display:none;position:fixed;z-index:20;inset:0;background:#07111f;color:#fff;align-items:center;justify-content:center;text-align:center;padding:24px;font-size:20px;font-weight:700;flex-direction:column;gap:12px}#rotate span{font-size:48px}
 html,body{margin:0;height:100%;overflow:hidden;background:#0b1220;font-family:system-ui,sans-serif;color:#fff;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}canvas{display:block;width:100%;height:100%;image-rendering:auto}
 #hud{position:fixed;z-index:2;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;pointer-events:none}.panel{background:#0b1628d9;border:1px solid #334155;border-radius:13px;padding:9px 12px;backdrop-filter:blur(7px)}#hint{position:fixed;z-index:2;bottom:12px;left:50%;transform:translateX(-50%);text-align:center;white-space:nowrap}.touch{position:fixed;z-index:3;bottom:22px;left:22px;width:150px;height:150px;border-radius:50%;background:#0f1b2dcc;border:2px solid #64748b99;touch-action:none}.stick{position:absolute;left:50%;top:50%;width:62px;height:62px;margin:-31px;border-radius:50%;background:#64748bcc;border:2px solid #cbd5e1;box-shadow:0 4px 18px #0006;touch-action:none}.touch button{display:none}@media(min-width:800px){.touch{display:none}} 
 </style></head><body>
 <div id="hud"><div class="panel"><b>Green Valley</b><div>Coins: <span id="coins">0</span></div></div><div class="panel">WASD / Arrow Keys</div></div>
-<canvas id="game"></canvas><div id="hint" class="panel">Explore the world • collect coins • visit the village</div>
+<div id="rotate"><span>↻</span>Rotate your phone to landscape</div><canvas id="game"></canvas><div id="hint" class="panel">Explore the world • collect coins • visit the village</div>
 <div class="touch" id="joystick" aria-label="Movement joystick"><div class="stick" id="stick"></div></div>
 <script>
 (()=>{const c=document.getElementById("game"),ctx=c.getContext("2d"),coinsEl=document.getElementById("coins");let W,H,dpr,keys={},touch={},coins=0,t=0;
