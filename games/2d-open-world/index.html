@@ -160,9 +160,9 @@ function setupJoin(room){
  });
  peer.on("error",e=>{console.warn("PeerJS:",e);roomEl.textContent="Solo";start.classList.add("hide")});
 }
-createBtn.onclick=()=>{createBtn.disabled=true;statusEl.textContent="Loading world...";setupHost()};
+createBtn.addEventListener("pointerup",e=>{e.preventDefault();if(createBtn.disabled)return;createBtn.disabled=true;start.classList.add("hide");statusEl.textContent="";try{initAudio();setupHost()}catch(err){console.error(err);isHost=false;roomEl.textContent="Solo";}});createBtn.addEventListener("click",e=>e.preventDefault());
 const sharedRoom=new URLSearchParams(location.search).get("room");
-if(sharedRoom&&/^[A-Z0-9]{6}$/i.test(sharedRoom)){statusEl.textContent="Joining multiplayer...";setupJoin(sharedRoom)}else{}
+if(sharedRoom&&/^[A-Z0-9]{6}$/i.test(sharedRoom)){statusEl.textContent="Joining multiplayer...";setupJoin(sharedRoom)}
 // If opened without a room, the single PLAY button starts a room automatically.
 // Share the resulting page URL to let friends join the same world.
 function drawMinimap(){const w=mm.width,h=mm.height,sx=w/world.w,sz=h/world.h;mctx.clearRect(0,0,w,h);mctx.fillStyle="#26382f";mctx.fillRect(0,0,w,h);mctx.fillStyle="#414746";mctx.fillRect(0,(world.h/2-14)*sz,w,28*sz);mctx.fillRect((world.w/2-14)*sx,0,28*sx,h);for(const q of houses){mctx.fillStyle="#665c4f";mctx.fillRect((q.x+world.w/2)*sx-8,(q.z+world.h/2)*sz-6,16,12)}for(const t of trees){mctx.fillStyle="#38533d";mctx.beginPath();mctx.arc((t.x+world.w/2)*sx,(t.z+world.h/2)*sz,3,0,7);mctx.fill()}for(const g of guns)if(!g.userData.taken){mctx.fillStyle="#facc15";mctx.beginPath();mctx.arc((g.position.x+world.w/2)*sx,(g.position.z+world.h/2)*sz,4,0,7);mctx.fill()}for(const [id,p] of remote){mctx.fillStyle="#a855f7";mctx.beginPath();mctx.arc((p.x+world.w/2)*sx,(p.z+world.h/2)*sz,6,0,7);mctx.fill()}for(const z of zombies)if(!z.dead){mctx.fillStyle="#ef4444";mctx.beginPath();mctx.arc((z.x+world.w/2)*sx,(z.z+world.h/2)*sz,5,0,7);mctx.fill()}mctx.fillStyle="#38bdf8";mctx.beginPath();mctx.arc((player.x+world.w/2)*sx,(player.z+world.h/2)*sz,7,0,7);mctx.fill()}
