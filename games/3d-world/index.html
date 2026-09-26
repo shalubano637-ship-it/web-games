@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>3D World</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#07111f;color:#fff;font-family:system-ui,sans-serif}
+#ui{position:fixed;z-index:2;top:14px;left:14px;right:14px;display:flex;justify-content:space-between;gap:10px;pointer-events:none}
+.panel{background:#0b1628cc;border:1px solid #334155;border-radius:14px;padding:10px 14px;backdrop-filter:blur(8px)}
+button{pointer-events:auto;border:1px solid #475569;border-radius:10px;background:#172338;color:#fff;padding:10px 14px;font-weight:700}
+#hint{position:fixed;z-index:2;bottom:16px;left:50%;transform:translateX(-50%);white-space:nowrap}
+canvas{display:block}
+</style>
+</head>
+<body>
+<div id="ui"><div class="panel"><b>3D World</b><div id="info">Drag to rotate · Scroll to zoom</div></div><button id="reset">Reset View</button></div>
+<div id="hint" class="panel">Explore the scene</div>
+<script type="module">
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
+import {OrbitControls} from "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/controls/OrbitControls.js";
+
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x07111f);
+scene.fog=new THREE.Fog(0x07111f,18,42);
+
+const camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,.1,100);
+camera.position.set(7,6,9);
+
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth,innerHeight);
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
+
+const controls=new OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true;
+controls.target.set(0,1,0);
+controls.minDistance=4;
+controls.maxDistance=20;
+
+scene.add(new THREE.HemisphereLight(0xbfd7ff,0x182230,2.1));
+const sun=new THREE.DirectionalLight(0xffffff,3);
+sun.position.set(6,10,5);
+sun.castShadow=true;
+sun.shadow.mapSize.set(2048,2048);
+scene.add(sun);
+
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(40,40),new THREE.MeshStandardMaterial({color:0x172235,roughness:.85}));
+ground.rotation.x=-Math.PI/2;
+ground.receiveShadow=true;
+scene.add(ground);
+
+const grid=new THREE.GridHelper(40,40,0x3a4b63,0x223047);
+grid.position.y=.01;
+scene.add(grid);
+
+const objects=[];
+function addBox(x,y,z,s,color){const m=new THREE.Mesh(new THREE.BoxGeometry(s,s,s),new THREE.MeshStandardMaterial({color,roughness:.45,metalness:.15}));m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;scene.add(m);objects.push(m);return m}
+addBox(-2,1,-1,2,0x4f8cff);
+addBox(2,.75,-2,1.5,0xf59e0b);
+addBox(2,1.25,2,2.5,0x8b5cf6);
+
+const sphere=new THREE.Mesh(new THREE.SphereGeometry(1,48,32),new THREE.MeshStandardMaterial({color:0x22c55e,roughness:.3,metalness:.2}));
+sphere.position.set(-2,1,2);sphere.castShadow=true;sphere.receiveShadow=true;scene.add(sphere);
+
+const torus=new THREE.Mesh(new THREE.TorusGeometry(1.2,.22,24,64),new THREE.MeshStandardMaterial({color:0xec4899,metalness:.65,roughness:.25}));
+torus.position.set(0,2.1,0);torus.rotation.x=Math.PI/2;torus.castShadow=true;scene.add(torus);
+
+const clock=new THREE.Clock();
+function animate(){requestAnimationFrame(animate);const t=clock.getElapsedTime();torus.rotation.z=t*.7;sphere.position.y=1+Math.sin(t*1.5)*.25;objects.forEach((o,i)=>o.rotation.y=t*(.12+i*.03));controls.update();renderer.render(scene,camera)}
+animate();
+
+document.getElementById("reset").addEventListener("click",()=>{camera.position.set(7,6,9);controls.target.set(0,1,0);controls.update()});
+addEventListener("resize",()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+</script>
+</body>
+</html>
