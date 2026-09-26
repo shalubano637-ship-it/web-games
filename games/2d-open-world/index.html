@@ -61,7 +61,7 @@ function startJoin(){
   roomCode=roomCodeEl.value.trim().toUpperCase();if(roomCode.length!==6){setRoomStatus("Enter the 6-character room code.");return}
   isHost=false;myId="guest-"+Math.random().toString(36).slice(2,10);
   peer=new Peer(myId);
-  peer.on("open",()=>{hostConn=peer.connect("host-"+roomCode,{reliable:true});hostConn.on("open",()=>{setRoomStatus("Joined room "+roomCode+" • connecting…");openGame()});hostConn.on("data",d=>{if(d.type==="full"){setRoomStatus("Room is full (6/6).");return}if(d.type==="welcome"){myId=d.id+"-"+Math.random().toString(36).slice(2,6)}if(d.type==="state"){remotePlayers={...d.players};delete remotePlayers[myId]}});hostConn.on("close",()=>setRoomStatus("Host disconnected."))});
+  peer.on("open",()=>{hostConn=peer.connect("host-"+roomCode,{reliable:true});hostConn.on("open",()=>{setRoomStatus("Joined room "+roomCode+" • connecting…");openGame()});hostConn.on("data",d=>{if(d.type==="full"){setRoomStatus("Room is full (6/6).");return}if(d.type==="welcome"){setRoomStatus("Joined room "+d.room+" • multiplayer active")}if(d.type==="state"){remotePlayers={...d.players};delete remotePlayers[myId]}});hostConn.on("close",()=>setRoomStatus("Host disconnected."))});
   peer.on("error",()=>setRoomStatus("Could not join room. Check the code."));
 }
 createRoomBtn.addEventListener("click",startHost);joinRoomBtn.addEventListener("click",startJoin);
