@@ -120,6 +120,7 @@ button,input{font:inherit}
 <p>Aur umeed hai ki ek din main aapka birthday sirf aapka boyfriend bankar nahi, balki us khushnaseeb insaan ke roop mein manaunga jise aap apna shohar kehke bula sako.</p>
 <p><b>Happy birthday meri kaleji👉🏾👈🏾🥳🥳🎉🎉</b></p><p><b>I love you soooooo muchhhhh 😘😘</b></p><p><b>My dream girl, my favourite person, my love, and hopefully, my forever.💕💕</b></p><div class="signature">WITH LOVE, ALWAYS ♡</div></section>
 </main>
+<div class="egg-toast" id="eggToast">689 found ❤️</div><div class="egg-secret" id="eggSecret"><div class="inner"><div class="big">689 ❤️</div><h2>You Found Them All.</h2><p>689 hidden moments, one love story, and one dream that never changed — tumhare saath poora future. Main dua karta hoon ki hamari shaadi ka waqt jaldi aaye. InshaAllah. ❤️</p><button id="eggClose">Keep Our Secret 🤫</button></div></div>
 <script>
 document.addEventListener('contextmenu',e=>e.preventDefault());
 const igLines=[['left','Hey Cherry ❤️','10:01 PM'],['right','Happy Birthday, meri kaleji 🥺❤️','10:02 PM'],['left','689 days already… 🥹','10:02 PM'],['right','Aur mera dream abhi bhi wahi hai.','10:03 PM'],['left','Konsa dream? 👀','10:03 PM'],['right','Tumhare saath poora future. InshaAllah. ❤️','10:04 PM'],['left','Awww 🥺❤️','10:04 PM'],['right','Happy Birthday, Cherry ❤️','10:05 PM']];let igRunning=false;document.getElementById('igStart').onclick=async()=>{if(igRunning)return;igRunning=true;const box=document.getElementById('igChat');box.innerHTML='';for(let i=0;i<igLines.length;i++){await new Promise(r=>setTimeout(r,650));const m=igLines[i],d=document.createElement('div');d.className='ig-msg '+(m[0]==='right'?'ig-right':'ig-left');d.innerHTML=m[1]+'<span class="ig-time">'+m[2]+'</span>';box.appendChild(d);box.scrollTop=box.scrollHeight}document.getElementById('igFinal').style.display='block'};
@@ -152,5 +153,5 @@ reset.onclick=async()=>{const d=await db(),t=d.transaction(STORE,'readwrite');t.
 document.getElementById('prev').onclick=()=>show(index-1);document.getElementById('next').onclick=()=>show(index+1);let sx=0;slider.ontouchstart=e=>sx=e.touches[0].clientX;slider.ontouchend=e=>{const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>45)show(index+(dx<0?1:-1))};
 });
 </script>
-<div class="egg-toast" id="eggToast">689 found ❤️</div><div class="egg-secret" id="eggSecret"><div class="inner"><div class="big">689 ❤️</div><h2>You Found Them All.</h2><p>689 hidden moments, one love story, and one dream that never changed — tumhare saath poora future. Main dua karta hoon ki hamari shaadi ka waqt jaldi aaye. InshaAllah. ❤️</p><button id="eggClose">Keep Our Secret 🤫</button></div></div></body>
+</body>
 </html>
