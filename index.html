@@ -93,24 +93,7 @@ button,input{font:inherit}
 <section class="section insta-section"><div class="insta-head"><div class="insta-avatar">C</div><div><b>cherry ❤️</b></div></div><div class="insta-chat" id="igChat"><button class="ig-start" id="igStart">Open Our Conversation ❤️</button></div><div class="ig-final" id="igFinal">Happy Birthday, Cherry ❤️</div>
 <div class="quiz" id="cherryQuiz"><div class="quiz-head"><h3>How Well Do You Know Me? 👀</h3><p>10 tricky questions. Dekhte hain Cherry mujhe kitna jaanti hai ❤️</p></div><div class="quiz-progress"><span id="quizBar"></span></div><div id="quizBody"></div><div class="quiz-score" id="quizScore"><div class="score-big" id="scoreBig"></div><div id="scoreText"></div><button class="quiz-retry" id="quizRetry">Try Again ❤️</button></div></div>
 </section>
-<section class="section tap-heart-section">
-<div class="label">A little game for you</div>
-<h2>Tap My Heart ❤️</h2>
-<p>Jitna pyaar hai, utni baar tap karo. Heart dheere-dheere fill hoga. ❤️</p>
-<div class="tap-heart-wrap" id="tapHeartWrap" aria-label="Tap my heart">
-  <div class="tap-heart">
-    <svg class="tap-heart-svg" viewBox="0 0 200 180" aria-hidden="true">
-      <defs><clipPath id="tapHeartClip"><rect id="tapHeartFillRect" x="0" y="180" width="200" height="0"></rect></clipPath></defs>
-      <path class="tap-heart-base" d="M100 165 C88 153 25 113 25 62 C25 32 48 14 73 14 C86 14 96 21 100 34 C104 21 114 14 127 14 C152 14 175 32 175 62 C175 113 112 153 100 165 Z"></path>
-      <path class="tap-heart-fill" d="M100 165 C88 153 25 113 25 62 C25 32 48 14 73 14 C86 14 96 21 100 34 C104 21 114 14 127 14 C152 14 175 32 175 62 C175 113 112 153 100 165 Z"></path>
-    </svg>
-  </div>
-</div>
-<div class="tap-heart-count"><b id="tapHeartCount">0</b> / 100 taps</div>
-<div class="tap-heart-message" id="tapHeartMessage"></div>
-<div class="tap-heart-hint" id="tapHeartHint">Tap the heart</div>
-<div class="tap-heart-done" id="tapHeartDone">100 taps… aur ab ek secret tumhare liye. ❤️</div>
-</section>
+
 <section class="section distance"><div class="label">No matter the distance</div><h2>Pathalgaon <span style="color:#ff6f9f">♡</span> Meerut</h2><div class="sub">Do shehr, ek dil. Distance jitna bhi ho, tum mere dil se kabhi door nahi.</div>
 <div class="route"><div class="city"><span class="pin">📍</span><b>Pathalgaon</b><small>Yahan se ❤️</small></div><div class="path"><span class="flying-heart">♥</span></div><div class="city"><span class="pin">📍</span><b>Meerut</b><small>Wahan tak ❤️</small></div></div>
 <div class="caption">“Faasla sirf shehron ka hai, humare dilon ka nahi.”</div></section>
@@ -148,12 +131,6 @@ const igLines=[['left','Assalamualaikum ❤️','11:39 AM'],['right','Walekum as
 
 const quizData=[{q:'Jab main tumse naraz hota hoon, mujhe sabse zyada kya chahiye hota hai?',o:['Thoda space','Tumhara pyaar se manaana ❤️','Ignore hona','Topic change karna'],a:1},{q:'Agar main tumhe achanak “I miss you” bolun, usually uske peeche kya hota hai?',o:['Bore ho raha hoon','Sach mein tumhari yaad aa rahi hoti hai ❤️','Koi kaam hai','Bas randomly'],a:1},{q:'Mere liye relationship mein sabse important kya hai?',o:['Gifts','Trust aur understanding ❤️','Expensive dates','Social media posts'],a:1},{q:'Tumhari ek kaunsi cheez mujhe sabse jaldi smile kara sakti hai?',o:['Tumhara cute hona','Tumhari bahut sari pics ❤️','Tumhara pyaar se baat karna','Ye sab 😂❤️'],a:1},{q:'Agar hum dono ke beech koi misunderstanding ho jaaye, main kya chahta hoon?',o:['Baat band kar dena','Ego rakhna','Baat karke solve karna ❤️','Ignore karna'],a:2},{q:'Tumhare saath future mein main sabse zyada kya karna chahta hoon?',o:['Sirf travelling','Sirf dates','Har chhoti-badi khushi tumhare saath share karna ❤️','Bas online baatein'],a:2},{q:'Tumhari kaunsi quality mujhe tumhare aur close feel karati hai?',o:['Tumhara care karna ❤️','Tumhara mujhe tease karna','Tumhara jealous hona','Tumhara mujhe ignore karna'],a:0},{q:'Agar tum ek din mujhse bilkul baat na karo, main sabse pehle kya karunga?',o:['Chill karunga','Khud bhi baat nahi karunga','Tumhe miss karke message/call karunga ❤️','So jaunga 😂'],a:2},{q:'Mere liye “forever” ka actual meaning kya hai?',o:['Jab tak sab easy hai','Jab tak relationship perfect hai','Problems ke baad bhi ek-dusre ka saath ❤️','Sirf ek romantic word'],a:2},{q:'Agar mujhe tumhare saath ek hi wish maangni ho, toh main kya choose karunga?',o:['Bahut sari pics ❤️','Duniya ghoomna','Tumhare saath apna future aur shaadi','Famous hona'],a:0}];let qi=0,qscore=0,qlocked=false;const qb=document.getElementById('quizBody'),qbar=document.getElementById('quizBar'),qscoreBox=document.getElementById('quizScore'),qbig=document.getElementById('scoreBig'),qtext=document.getElementById('scoreText');function renderQuiz(){qlocked=false;const x=quizData[qi];qbar.style.width=((qi)/quizData.length*100)+'%';qb.innerHTML='<div class="quiz-q">'+(qi+1)+'. '+x.q+'</div><div class="quiz-options">'+x.o.map((v,i)=>'<button class="quiz-option" data-i="'+i+'">'+v+'</button>').join('')+'</div><div class="quiz-feedback" id="quizFeedback"></div><button class="quiz-next" id="quizNext">'+(qi===quizData.length-1?'See My Result':'Next Question →')+'</button>';qb.querySelectorAll('.quiz-option').forEach(b=>b.onclick=()=>answerQuiz(+b.dataset.i));}function answerQuiz(i){if(qlocked)return;qlocked=true;const x=quizData[qi],opts=qb.querySelectorAll('.quiz-option'),fb=document.getElementById('quizFeedback');opts[x.a].classList.add('correct');if(i===x.a){qscore++;fb.textContent='Correct ❤️';fb.style.color='#72e6a5'}else{opts[i].classList.add('wrong');fb.textContent='Wrong 😭  Sahi answer: '+x.o[x.a];fb.style.color='#ff9aae'}qbar.style.width=((qi+1)/quizData.length*100)+'%';document.getElementById('quizNext').style.display='block';document.getElementById('quizNext').onclick=()=>{if(qi<quizData.length-1){qi++;renderQuiz()}else{qb.style.display='none';qscoreBox.style.display='block';qbig.textContent=qscore+' / 10';qtext.textContent=qscore===10?'Perfect! Cherry knows me better than I know myself. ❤️':qscore>=7?'Acha ji… Cherry knows me pretty well. 🥹❤️':qscore>=4?'Thoda aur jaana padega madam. 😭❤️':'Lagta hai mujhe tumhe aur clues dene padenge. 😂❤️'}}}document.getElementById('quizRetry').onclick=()=>{qi=0;qscore=0;qb.style.display='block';qscoreBox.style.display='none';renderQuiz()};renderQuiz();
 
-const tapHeartWrap=document.getElementById('tapHeartWrap'),tapHeartFill=document.getElementById('tapHeartFill'),tapHeartCount=document.getElementById('tapHeartCount'),tapHeartMessage=document.getElementById('tapHeartMessage'),tapHeartHint=document.getElementById('tapHeartHint'),tapHeartDone=document.getElementById('tapHeartDone');
-let tapHeartTaps=0,tapHeartTimer=null;
-const tapHeartMessages={10:'Ohooo… 10 taps mein hi itna pyaar? 😭❤️',25:'Aap dil bhar rahi ho ya mujhe phasa rahi ho? 😂❤️',50:'50 taps?! Itna pyaar dekh ke main officially blush kar raha hoon 🥺😂❤️',75:'Bas 25 aur… phir mera dil officially aapka permanent address hai 😂❤️',100:'100 taps complete! Ab dil bhi aapka, owner bhi aapka. 🥹❤️'};
-function showTapHeartMessage(n){tapHeartMessage.textContent=tapHeartMessages[n]||'';tapHeartMessage.classList.add('show');clearTimeout(tapHeartTimer);tapHeartTimer=setTimeout(()=>tapHeartMessage.classList.remove('show'),2600)}
-function burstTapHeart(x,y){for(let i=0;i<6;i++){const h=document.createElement('span');h.className='tap-heart-burst';h.textContent=['♥','♡','💕','✦'][Math.floor(Math.random()*4)];h.style.left=x+'px';h.style.top=y+'px';h.style.setProperty('--tx',(Math.random()*130-65)+'px');h.style.setProperty('--ty',(-35-Math.random()*80)+'px');h.style.setProperty('--rot',(Math.random()*80-40)+'deg');document.body.appendChild(h);setTimeout(()=>h.remove(),800)}}
-tapHeartWrap.onclick=e=>{if(tapHeartTaps>=100)return;tapHeartTaps++;tapHeartCount.textContent=tapHeartTaps;const fillRect=document.getElementById('tapHeartFillRect');fillRect.setAttribute('y',180-(165*tapHeartTaps/100));fillRect.setAttribute('height',165*tapHeartTaps/100);tapHeartWrap.style.transform='scale('+(1+Math.min(tapHeartTaps,20)*.006)+')';setTimeout(()=>tapHeartWrap.style.transform='',120);burstTapHeart(e.clientX,e.clientY);if(tapHeartMessages[tapHeartTaps])showTapHeartMessage(tapHeartTaps);if(tapHeartTaps===100){tapHeartHint.textContent='Heart is full ❤️';tapHeartDone.classList.add('show');tapHeartMessage.textContent='100 taps… aur ab ek secret sirf tumhare liye. ❤️';tapHeartMessage.classList.add('show')}};
 const eggEls=[...document.querySelectorAll('.egg')],eggToast=document.getElementById('eggToast'),eggSecret=document.getElementById('eggSecret');let foundEggs=new Set();eggEls.forEach(e=>e.onclick=()=>{const n=e.dataset.egg;if(foundEggs.has(n))return;foundEggs.add(n);e.classList.add('egg-found');eggToast.textContent=foundEggs.size<8?'689 found • '+foundEggs.size+' / 8 ❤️':'All 689 found! ❤️';eggToast.classList.add('show');setTimeout(()=>eggToast.classList.remove('show'),1100);if(foundEggs.size===8)setTimeout(()=>eggSecret.classList.add('show'),450)});document.getElementById('eggClose').onclick=()=>eggSecret.classList.remove('show');
 const cdTarget=null; let cdElapsedSeconds=0; function updateMarriageCountdown(){cdElapsedSeconds++;const days=Math.floor(cdElapsedSeconds/86400)+689;const hours=Math.floor((cdElapsedSeconds%86400)/3600);const minutes=Math.floor((cdElapsedSeconds%3600)/60);const seconds=cdElapsedSeconds%60;document.getElementById('cdDays').textContent=String(days);document.getElementById('cdHours').textContent=String(hours).padStart(2,'0');document.getElementById('cdMinutes').textContent=String(minutes).padStart(2,'0');document.getElementById('cdSeconds').textContent=String(seconds).padStart(2,'0')}updateMarriageCountdown();setInterval(updateMarriageCountdown,1000);
 document.addEventListener('DOMContentLoaded',()=>{
@@ -184,25 +161,7 @@ document.getElementById('prev').onclick=()=>show(index-1);document.getElementByI
 });
 </script>
 </body>
-</html<style id="tap-heart-style">
-.tap-heart-section{text-align:center;overflow:hidden}
-.tap-heart-wrap{position:relative;width:250px;height:250px;margin:24px auto 12px;display:grid;place-items:center;cursor:pointer;touch-action:manipulation}
-.tap-heart{width:225px;height:225px;display:grid;place-items:center;transition:transform .12s ease;filter:drop-shadow(0 0 22px rgba(255,80,140,.22))}
-.tap-heart:active{transform:scale(.93)}
-.tap-heart-svg{width:225px;height:225px;overflow:visible}
-.tap-heart-base{fill:rgba(255,111,159,.10);stroke:#ff9fbd;stroke-width:2}
-.tap-heart-fill{fill:#ff4f87;clip-path:url(#tapHeartClip);filter:drop-shadow(0 0 10px rgba(255,79,135,.6))}
-.tap-heart-burst{position:fixed;pointer-events:none;z-index:300;font-size:18px;color:#ff9fbd;animation:tapBurst .75s ease-out forwards}
-@keyframes tapBurst{to{transform:translate(var(--tx),var(--ty)) scale(.45) rotate(var(--rot));opacity:0}}
-.tap-heart-count{font:bold 14px Arial;color:#ffd7e5;letter-spacing:1px}
-.tap-heart-count b{color:#ff6f9f}
-.tap-heart-message{min-height:25px;margin:14px auto 0;color:#ffb4ca;font:italic 16px Georgia;opacity:0;transform:translateY(5px);transition:.35s}
-.tap-heart-message.show{opacity:1;transform:translateY(0)}
-.tap-heart-hint{font:10px Arial;letter-spacing:2px;text-transform:uppercase;color:#9e7c8d;margin-top:10px}
-.tap-heart-done{display:none;margin-top:15px;color:#fff;font:500 18px Georgia}
-.tap-heart-done.show{display:block;animation:tapDone .7s ease}
-@keyframes tapDone{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
-</style>
+</html
 
 <style id="marriage-countdown-style">.marriage-countdown{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);width:min(560px,calc(100% - 24px));z-index:90;padding:10px 12px;border:1px solid rgba(255,159,189,.28);border-radius:22px;background:rgba(20,10,28,.88);backdrop-filter:blur(14px);box-shadow:0 12px 45px rgba(0,0,0,.45),0 0 25px rgba(255,111,159,.08);text-align:center}.marriage-countdown .cd-label{font:9px Arial;letter-spacing:2.5px;text-transform:uppercase;color:#d78ba7;margin-bottom:7px}.marriage-countdown .cd-time{display:flex;justify-content:center;align-items:center;gap:7px}.marriage-countdown .cd-unit{min-width:58px}.marriage-countdown .cd-num{display:block;font:bold 21px Arial;color:#fff;line-height:1}.marriage-countdown .cd-name{display:block;margin-top:4px;font:8px Arial;letter-spacing:1px;text-transform:uppercase;color:#b996a7}.marriage-countdown .cd-sep{color:#ff6f9f;font:bold 16px Arial;margin-top:-9px}.marriage-countdown .cd-note{margin-top:6px;font:9px Arial;color:#a98999}.marriage-countdown .cd-heart{color:#ff6f9f}@media(max-width:600px){.marriage-countdown{bottom:9px;padding:9px 7px;border-radius:19px}.marriage-countdown .cd-time{gap:3px}.marriage-countdown .cd-unit{min-width:51px}.marriage-countdown .cd-num{font-size:18px}.marriage-countdown .cd-name{font-size:7px}.marriage-countdown .cd-sep{font-size:13px}}
 </style>
