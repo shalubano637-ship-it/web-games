@@ -48,7 +48,7 @@ button,input{font:inherit}
 .final{text-align:center;padding:46px 18px}.final .heart{font-size:48px;color:var(--pink);animation:pulse 1.6s infinite}.final h2{font-size:clamp(30px,8vw,52px);font-weight:500;color:#fff;margin:12px 0 20px}.final p{color:#dfc9d3;font-size:17px;line-height:1.75}.signature{margin-top:30px;font:10px Arial;letter-spacing:4px;color:#9e7c8d}
 .float{position:fixed;bottom:-30px;pointer-events:none;z-index:2;color:var(--pink);opacity:.55;font-size:20px;animation:floatUp linear forwards}@keyframes floatUp{to{transform:translateY(-110vh) translateX(var(--drift)) rotate(25deg);opacity:0}}
 @media(max-width:600px){.section{padding:28px 19px;border-radius:25px}.section p{font-size:16px;line-height:1.8}.route{gap:4px}.city{width:80px;flex-basis:80px}.city b{font-size:11px}.city small{font-size:9px}.letters{grid-template-columns:1fr}.gift-grid{grid-template-columns:1fr}.gift{display:flex;align-items:center;gap:14px;text-align:left;padding:16px}.gift .emoji{font-size:38px}.gift b{margin:0}.gift small{margin-top:3px}}
-</style>
+.love-orbit{position:absolute;left:50%;top:43%;width:min(310px,72vw);height:150px;transform:translate(-50%,-50%);pointer-events:none;z-index:0}.love-orbit span{position:absolute;left:50%;top:50%;font-family:Arial;color:#ff6f9f;text-shadow:0 0 12px rgba(255,111,159,.7);animation:orbitHeart 5s linear infinite;opacity:0}.love-orbit span:nth-child(1){animation-delay:0s}.love-orbit span:nth-child(2){animation-delay:1.25s}.love-orbit span:nth-child(3){animation-delay:2.5s}.love-orbit span:nth-child(4){animation-delay:3.75s}@keyframes orbitHeart{0%{opacity:0;transform:rotate(0deg) translateX(135px) rotate(0deg) scale(.4)}12%{opacity:.9}50%{opacity:.45}88%{opacity:.9}100%{opacity:0;transform:rotate(360deg) translateX(135px) rotate(-360deg) scale(1)}}.hero h1{position:relative;z-index:1}.hero .intro,.hero .days,.hero .scroll,.hero .kicker{position:relative;z-index:1}</style>
 </head>
 <body>
 <div class="modal" id="letterModal"><div class="popup"><div class="icon" id="letterIcon">💌</div><h3 id="letterTitle"></h3><p id="letterText"></p><button class="close" id="letterClose">Close ❤️</button></div></div>
@@ -56,7 +56,7 @@ button,input{font:inherit}
 
 <main class="wrap">
 <section class="hero">
-<div class="kicker">A little birthday page, made with love</div>
+<div class="love-orbit"><span>♥</span><span>♡</span><span>♥</span><span>♡</span></div><div class="kicker">A little birthday page, made with love</div>
 <h1>Happy Birthday,<span>Cherry ❤️</span></h1>
 <p class="intro">Kabhi socha nahi tha ki ek insaan meri ordinary si life ko itna beautiful bana dega. Tum aayi, aur meri duniya mein tumhari ek alag si jagah ban gayi. ❤️</p>
 <div class="days">♡ 689 days • countless memories • one dream ♡</div>
