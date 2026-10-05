@@ -106,7 +106,7 @@ button,input{font:inherit}
 <div class="moment"><div class="num">689</div><div><h3>Today</h3><p>689 days later, dream ab bhi wahi hai — tumhare saath future.</p></div></div>
 </div></section>
 
-<section class="section"><div class="label">Open when…</div><h2>Little letters for you 💌</h2><div class="letters">
+<section class="section"><div class="label">Open when…</div><h2>Little letters for you 💌</h2><div class="hero-upload"><label for="lettersImageUpload">📷 Upload a Photo</label><input id="lettersImageUpload" type="file" accept="image/*"><img id="lettersImagePreview" class="hero-upload-preview" alt="Uploaded photo"></div><div class="letters">
 <div class="letter" data-letter="miss"><div class="letter-icon">💌</div><span>When you miss me</span></div>
 <div class="letter" data-letter="sad"><div class="letter-icon">🥺</div><span>When you're sad</span></div>
 <div class="letter" data-letter="love"><div class="letter-icon">❤️</div><span>When you need a reminder</span></div>
@@ -154,10 +154,11 @@ const imageDBName='cherryBirthdaySpecialPhotos';
 function specialDB(){return new Promise((ok,no)=>{const q=indexedDB.open(imageDBName,1);q.onupgradeneeded=()=>q.result.createObjectStore('special');q.onsuccess=()=>ok(q.result);q.onerror=()=>no(q.error)})}
 async function saveSpecial(key,file,preview){if(!file||!file.type.startsWith('image/'))return;const d=await specialDB(),t=d.transaction('special','readwrite');t.objectStore('special').put(file,key);t.oncomplete=()=>{if(preview._url)URL.revokeObjectURL(preview._url);preview._url=URL.createObjectURL(file);preview.src=preview._url;preview.classList.add('show')}}
 async function loadSpecial(key,preview){const d=await specialDB(),q=d.transaction('special','readonly').objectStore('special').get(key);q.onsuccess=()=>{if(!q.result)return;if(preview._url)URL.revokeObjectURL(preview._url);preview._url=URL.createObjectURL(q.result);preview.src=preview._url;preview.classList.add('show')}}
-const heroImageUpload=document.getElementById('heroImageUpload'),heroImagePreview=document.getElementById('heroImagePreview'),proposalImageUpload=document.getElementById('proposalImageUpload'),proposalImagePreview=document.getElementById('proposalImagePreview');
+const heroImageUpload=document.getElementById('heroImageUpload'),heroImagePreview=document.getElementById('heroImagePreview'),proposalImageUpload=document.getElementById('proposalImageUpload'),proposalImagePreview=document.getElementById('proposalImagePreview'),lettersImageUpload=document.getElementById('lettersImageUpload'),lettersImagePreview=document.getElementById('lettersImagePreview');
 heroImageUpload.onchange=e=>saveSpecial('hero',e.target.files[0],heroImagePreview);
 proposalImageUpload.onchange=e=>saveSpecial('proposal',e.target.files[0],proposalImagePreview);
-loadSpecial('hero',heroImagePreview);loadSpecial('proposal',proposalImagePreview);
+lettersImageUpload.onchange=e=>saveSpecial('letters',e.target.files[0],lettersImagePreview);
+loadSpecial('hero',heroImagePreview);loadSpecial('proposal',proposalImagePreview);loadSpecial('letters',lettersImagePreview);
 
 const lock=document.getElementById('photoLock'),content=document.getElementById('memoryContent'),vp=document.getElementById('viewPassword'),vu=document.getElementById('viewUnlock'),ve=document.getElementById('viewError'),admin=document.getElementById('adminUnlock'),status=document.getElementById('adminStatus'),upload=document.getElementById('uploadControls'),file=document.getElementById('photoFile'),reset=document.getElementById('clearPhotos'),slides=document.getElementById('slides'),dots=document.getElementById('dots'),count=document.getElementById('count'),slider=document.getElementById('slider');let unlocked=false,index=0,total=0;const DB='cherryBirthdayPhotos',STORE='photos';const VIEW='c2FuYTA2MDU=',OWNER='bmFzaXIxMjM0';
 function db(){return new Promise((ok,no)=>{const q=indexedDB.open(DB,1);q.onupgradeneeded=()=>q.result.createObjectStore(STORE);q.onsuccess=()=>ok(q.result);q.onerror=()=>no(q.error)})}
