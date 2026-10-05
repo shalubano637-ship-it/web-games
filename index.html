@@ -52,7 +52,6 @@ button,input{font:inherit}
 </head>
 <body>
 <div class="modal" id="letterModal"><div class="popup"><div class="icon" id="letterIcon">💌</div><h3 id="letterTitle"></h3><p id="letterText"></p><button class="close" id="letterClose">Close ❤️</button></div></div>
-<div class="modal" id="giftModal"><div class="popup"><div class="icon" id="giftIcon">🎁</div><h3 id="giftTitle"></h3><p id="giftText"></p><button class="close" id="giftClose">Close ❤️</button></div></div>
 <div class="modal" id="proposalModal"><div class="popup"><div class="icon">💍❤️</div><h3>Ek baat dil se…</h3><p>689 din pehle shayad mujhe nahi pata tha ki tum meri zindagi mein itni special ban jaogi. Aaj itna zaroor pata hai ki meri sabse khoobsurat wishes mein tumhara naam hota hai.</p><p>Main tumhare saath sirf aaj ke moments nahi, balki kal ke saare moments bhi jeena chahta hoon — tumhari khushi mein, tumhare mushkil waqt mein, tumhari har chhoti-badi achievement mein.</p><p>Main perfect nahi hoon, lekin tumhare liye behtar insaan banne ki koshish hamesha karta rahunga. Aur agar Allah ne hum dono ke liye likha hai, toh ek din is distance ko khatam karke tumhara haath hamesha ke liye pakadna chahta hoon.</p><p>Ye koi pressure nahi, bas mere dil ki sabse sachchi wish hai…</p><p style="color:#ff9fbd;text-align:center;font-weight:bold">Cherry, kya tum mere saath apni poori zindagi ki kahani likhna chahogi? ❤️</p><button class="close" id="proposalClose">Close ❤️</button></div></div>
 
 <main class="wrap">
@@ -109,12 +108,6 @@ button,input{font:inherit}
 
 <section class="proposal-secret"><div class="lock-heart">💌</div><h2>One Last Secret...</h2><p>Ek chhoti si baat jo main tumse dil se kehna chahta hoon.</p><button class="proposal-btn" id="proposalOpen">Open My Heart ❤️</button></section>
 
-<section class="section"><div class="label">Surprises</div><h2>Three little gifts 🎁</h2><div class="gift-grid">
-<div class="gift" data-icon="🎁" data-title="Gift #1" data-text="Tum meri dream girl ho — aur meri favourite memory abhi bhi hum dono ki hai. 💕"><div class="emoji">🎁</div><b>Gift #1</b><small>Open me</small></div>
-<div class="gift" data-icon="🎀" data-title="Gift #2" data-text="Ek promise: main perfect nahi, lekin tumhare liye better insaan banne ki koshish hamesha karta rahunga. ❤️"><div class="emoji">🎀</div><b>Gift #2</b><small>Open me</small></div>
-<div class="gift" data-icon="💝" data-title="Gift #3" data-text="Sabse bada surprise: InshaAllah, ek din humara future saath mein. 🥹💕"><div class="emoji">💝</div><b>Gift #3</b><small>Open me</small></div>
-</div></section>
-
 <section class="final"><div class="heart">♥</div><div class="label">One last thing from my heart</div><h2>Ek din, InshaAllah…</h2>
 <p>Aur umeed hai ki ek din main aapka birthday sirf aapka boyfriend bankar nahi, balki us khushnaseeb insaan ke roop mein manaunga jise aap apna shohar kehke bula sako.</p>
 <p><b>Happy birthday meri kaleji👉🏾👈🏾🥳🥳🎉🎉</b></p><p><b>I love you soooooo muchhhhh 😘😘</b></p><p><b>My dream girl, my favourite person, my love, and hopefully, my forever.💕💕</b></p><div class="signature">WITH LOVE, ALWAYS ♡</div></section>
@@ -134,7 +127,6 @@ function openLetter(x){letterIcon.textContent=x[0];letterTitle.textContent=x[1];
 document.querySelectorAll('.letter').forEach(e=>e.onclick=()=>openLetter(letters[e.dataset.letter]));
 document.getElementById('future').onclick=()=>openLetter(['💍','For Our Future','Aaj tumhara birthday hai, lekin meri sabse beautiful wish tumhare liye sirf aaj ke liye nahi hai. Main chahta hoon ki aane wale har birthday par tumhare saath rahun, tumhe isi tarah special feel karata rahun aur har saal tumhare saath ek aur beautiful memory banaun. Aur agar Allah ne hum dono ke liye likha hai, toh ek din isi love story ko apni zindagi bana denge. InshaAllah. ❤️']);
 document.getElementById('letterClose').onclick=()=>letterModal.classList.remove('show');letterModal.onclick=e=>{if(e.target===letterModal)letterModal.classList.remove('show')};
-const giftModal=document.getElementById('giftModal');document.querySelectorAll('.gift').forEach(g=>g.onclick=()=>{document.getElementById('giftIcon').textContent=g.dataset.icon;document.getElementById('giftTitle').textContent=g.dataset.title;document.getElementById('giftText').textContent=g.dataset.text;giftModal.classList.add('show')});document.getElementById('giftClose').onclick=()=>giftModal.classList.remove('show');giftModal.onclick=e=>{if(e.target===giftModal)giftModal.classList.remove('show')};
 const proposal=document.getElementById('proposalModal');document.getElementById('proposalOpen').onclick=()=>proposal.classList.add('show');document.getElementById('proposalClose').onclick=()=>proposal.classList.remove('show');proposal.onclick=e=>{if(e.target===proposal)proposal.classList.remove('show')};
 const lock=document.getElementById('photoLock'),content=document.getElementById('memoryContent'),vp=document.getElementById('viewPassword'),vu=document.getElementById('viewUnlock'),ve=document.getElementById('viewError'),admin=document.getElementById('adminUnlock'),status=document.getElementById('adminStatus'),upload=document.getElementById('uploadControls'),file=document.getElementById('photoFile'),reset=document.getElementById('clearPhotos'),slides=document.getElementById('slides'),dots=document.getElementById('dots'),count=document.getElementById('count'),slider=document.getElementById('slider');let unlocked=false,index=0,total=0;const DB='cherryBirthdayPhotos',STORE='photos';const VIEW='c2FuYTA2MDU=',OWNER='bmFzaXIxMjM0';
 function db(){return new Promise((ok,no)=>{const q=indexedDB.open(DB,1);q.onupgradeneeded=()=>q.result.createObjectStore(STORE);q.onsuccess=()=>ok(q.result);q.onerror=()=>no(q.error)})}
