@@ -19,8 +19,26 @@ h1{font-size:clamp(48px,12vw,92px);line-height:.95;margin:16px 0 12px;color:#8e3
 .heart{font-family:Arial;font-size:46px;animation:pulse 1.6s infinite;display:block;margin-bottom:12px}@keyframes pulse{50%{transform:scale(1.16)}}.from{font-family:Arial,sans-serif;font-size:12px;letter-spacing:2px;color:#ad6a83;margin-top:35px}
 @media(max-width:600px){.wrap{padding-top:15px}.card{padding:25px 20px;border-radius:22px}.card p{font-size:16px;line-height:1.8}}
 </style>
-</head>
-<body>
+<style>
+.floating-heart{position:fixed;bottom:-30px;left:0;z-index:2;pointer-events:none;font-size:22px;animation:floatUp linear forwards;opacity:.85}
+.sparkle{position:fixed;pointer-events:none;z-index:3;font-size:18px;animation:sparkle .9s ease-out forwards}
+.music{position:fixed;right:16px;top:16px;z-index:10;border:1px solid #efb0c7;background:#fff8fb;color:#9c4165;border-radius:999px;padding:10px 14px;font:13px Arial;box-shadow:0 8px 25px rgba(130,45,80,.12);cursor:pointer}
+.music.on{background:#ffe3ef}
+@keyframes floatUp{0%{transform:translateY(0) scale(.7) rotate(0deg);opacity:0}15%{opacity:.85}100%{transform:translateY(-110vh) translateX(var(--drift)) scale(1.25) rotate(25deg);opacity:0}}
+@keyframes sparkle{0%{transform:scale(.3) rotate(0);opacity:0}30%{opacity:1}100%{transform:translate(var(--sx),var(--sy)) scale(1.4) rotate(180deg);opacity:0}}
+@keyframes pulseGlow{50%{transform:scale(1.05);text-shadow:0 0 22px rgba(224,92,139,.3)}}
+h1{animation:pulseGlow 2.8s ease-in-out infinite}
+</style></head>
+<body><button class="music" id="musicBtn" aria-label="Play birthday music">♪ Play music</button>
+<script>
+(()=>{const C=['❤','♡','✦','💕','✨'];let ctx,gain,timer,on=false;
+function heart(){const e=document.createElement('span');e.className='floating-heart';e.textContent=C[Math.floor(Math.random()*C.length)];e.style.left=Math.random()*100+'vw';e.style.setProperty('--drift',(Math.random()*160-80)+'px');e.style.animationDuration=(5+Math.random()*5)+'s';document.body.appendChild(e);setTimeout(()=>e.remove(),11000)}
+setInterval(heart,650);for(let i=0;i<10;i++)setTimeout(heart,i*180);
+function sparkle(){const e=document.createElement('span');e.className='sparkle';e.textContent=['✦','✨','♡'][Math.floor(Math.random()*3)];e.style.left=(20+Math.random()*60)+'vw';e.style.top=(15+Math.random()*65)+'vh';e.style.setProperty('--sx',(Math.random()*100-50)+'px');e.style.setProperty('--sy',(Math.random()*100-50)+'px');document.body.appendChild(e);setTimeout(()=>e.remove(),1000)}
+function music(){ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();gain=gain||ctx.createGain();gain.gain.value=.045;gain.connect(ctx.destination);let notes=[261.63,329.63,392,523.25,392,329.63,293.66,349.23];let i=0;timer=setInterval(()=>{let o=ctx.createOscillator();o.type='sine';o.frequency.value=notes[i++%notes.length];o.connect(gain);let t=ctx.currentTime;o.start(t);o.stop(t+.32);},430)}
+const b=document.getElementById('musicBtn');b.addEventListener('click',()=>{if(!on){music();on=true;b.textContent='♫ Music on';b.classList.add('on');for(let i=0;i<8;i++)setTimeout(sparkle,i*100)}else{clearInterval(timer);on=false;b.textContent='♪ Play music';b.classList.remove('on')}});document.addEventListener('click',e=>{if(e.target===b)return;for(let i=0;i<2;i++)setTimeout(sparkle,i*80)});
+})();
+</script>
 <main class="wrap">
 <section class="hero">
 <div class="tiny">A little birthday page, made with love</div>
