@@ -124,13 +124,8 @@ footer .heart{color:#b99443}
 .close{background:#e2efdf;color:#176b4d}
 
 
-/* Keep manual touch scrolling disabled; navigation buttons scroll programmatically. */
-html, body {
-  overflow-y: hidden;
-  overscroll-behavior-y: none;
-}
-html { touch-action: pan-x; }
-
+/* Keep the page scrollable by code, but block manual touch/wheel scrolling. */
+html, body { overflow-y: auto; overscroll-behavior-y: none; }
 </style>
 </head>
 <body>
@@ -206,6 +201,14 @@ modal.addEventListener('click',e=>{if(e.target===modal)closeGift()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeGift()});
 document.getElementById('moreLove').addEventListener('click',()=>{confetti(100);document.getElementById('giftMessage').textContent='One more wish: may Allah keep you safe, healthy, loved, and smiling. Happy Birthday, Aapi! ❤️'});
 document.getElementById('envelope').addEventListener('click',()=>{const letter=document.getElementById('letterText');letter.classList.toggle('open');document.querySelector('.envelope-hint').textContent=letter.classList.contains('open')?'A letter written with love, just for you.':'Tap the envelope to read your letter';if(letter.classList.contains('open')){confetti(65);setTimeout(()=>letter.scrollIntoView({behavior:'smooth',block:'center'}),100)}});
+
+/* Prevent manual swipe/wheel scrolling; button-triggered scrollIntoView still works. */
+document.addEventListener('touchmove', function(e) {
+  e.preventDefault();
+}, { passive: false });
+document.addEventListener('wheel', function(e) {
+  e.preventDefault();
+}, { passive: false });
 
 /* Start at the top; only the surprise button should scroll to the wishes section. */
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
