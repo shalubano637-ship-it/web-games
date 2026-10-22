@@ -128,6 +128,19 @@ footer .heart{color:#b99443}
 .more-btn{margin-top:16px;padding:9px 16px;border:1px solid #176b4d;border-radius:999px;background:#176b4d;color:#fffaf0;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .more-btn:active,.more-btn:focus{background:#176b4d;color:#fffaf0}
 .scroll-more-wrap{display:flex;justify-content:center;margin-top:30px}.scroll-more-wrap .pill{min-width:170px}
+
+.photo-carousel{margin:0 auto 54px;padding:22px;background:#fffdf7;border:1px solid #d9e7d3;border-radius:24px;box-shadow:0 14px 36px #315b3d10}
+.photo-carousel-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:18px}
+.photo-carousel-head h3{font:600 clamp(1.35rem,4vw,2rem) 'Playfair Display',serif;color:#176b4d;margin:7px 0 0}
+.upload-photos{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;background:#176b4d;color:#fffaf0;padding:12px 16px;font-weight:700;font-size:.9rem;cursor:pointer;white-space:nowrap}
+.photo-stage{position:relative;overflow:hidden;border-radius:18px;background:#eaf3e5;min-height:190px;display:flex;align-items:center;justify-content:center;touch-action:pan-y}
+.photo-empty{text-align:center;padding:32px 20px;color:#587563}.photo-empty span{display:block;font-size:3rem;margin-bottom:8px}.photo-empty strong{display:block;font-size:1.05rem}.photo-empty p{margin:8px 0 0;line-height:1.5;font-size:.9rem}
+.photo-slide{display:none;width:100%;height:clamp(230px,62vw,440px);object-fit:contain;background:#eaf3e5}.photo-slide.active{display:block}
+.photo-controls{display:flex;align-items:center;justify-content:center;gap:20px;padding-top:14px}
+.photo-controls button{width:40px;height:40px;border:0;border-radius:50%;background:#176b4d;color:#fffaf0;font-size:1.8rem;line-height:1;cursor:pointer}
+.photo-dots{display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap}.photo-dot{width:8px;height:8px;border:0;border-radius:50%;background:#c7d9c7;padding:0;cursor:pointer}.photo-dot.active{background:#176b4d;transform:scale(1.25)}
+@media(max-width:520px){.photo-carousel{padding:15px;margin-bottom:42px}.photo-carousel-head{align-items:flex-start;flex-direction:column}.upload-photos{align-self:flex-start}.photo-stage{min-height:170px}}
+
 </style>
 </head>
 <body>
@@ -157,6 +170,21 @@ footer .heart{color:#b99443}
 </section>
 <section class="gifts" id="gifts">
   <div class="wrap">
+    <div class="photo-carousel" id="photoCarousel">
+      <div class="photo-carousel-head">
+        <div><div class="section-kicker">Our memories</div><h3>Special photos for Aapi</h3></div>
+        <label class="upload-photos" for="photoUpload">＋ Upload photos</label>
+        <input id="photoUpload" type="file" accept="image/*" multiple hidden>
+      </div>
+      <div class="photo-stage" id="photoStage">
+        <div class="photo-empty"><span>🖼️</span><strong>Your photos go here</strong><p>Upload one or more pictures to create a swipeable photo carousel.</p></div>
+      </div>
+      <div class="photo-controls" id="photoControls" hidden>
+        <button type="button" id="photoPrev" aria-label="Previous photo">‹</button>
+        <div class="photo-dots" id="photoDots"></div>
+        <button type="button" id="photoNext" aria-label="Next photo">›</button>
+      </div>
+    </div>
     <div class="section-kicker">Pick a little present</div><h2>Three gifts, just for you</h2>
     <p class="sub">Tap each gift to unwrap a little birthday message. No wrapping paper required.</p>
     <div class="gift-grid">
@@ -194,6 +222,42 @@ const gifts=[
  {emoji:'💐',title:'Flowers for the sweetest Aapi',message:'Like these flowers, may your life keep blooming with peace, confidence, good health, and new reasons to feel proud of yourself. You deserve all the beauty this world can offer.'},
  {emoji:'💌',title:'A tiny note, a huge amount of love',message:'No gift could ever fully say how much you mean to me. Thank you for being my big sister. I am always wishing the best for you, today and every day.'}
 ];
+
+const photoUpload=document.getElementById('photoUpload');
+const photoStage=document.getElementById('photoStage');
+const photoControls=document.getElementById('photoControls');
+const photoDots=document.getElementById('photoDots');
+let photoSlides=[], photoIndex=0, photoUrls=[];
+function showPhoto(index){
+ if(!photoSlides.length)return;
+ photoIndex=(index+photoSlides.length)%photoSlides.length;
+ photoSlides.forEach((img,i)=>img.classList.toggle('active',i===photoIndex));
+ [...photoDots.children].forEach((dot,i)=>dot.classList.toggle('active',i===photoIndex));
+}
+photoUpload.addEventListener('change',()=>{
+ const files=[...photoUpload.files].filter(file=>file.type.startsWith('image/'));
+ if(!files.length)return;
+ photoUrls.forEach(url=>URL.revokeObjectURL(url));
+ photoUrls=files.map(file=>URL.createObjectURL(file));
+ photoStage.innerHTML='';
+ photoDots.innerHTML='';
+ photoSlides=files.map((file,i)=>{
+   const img=document.createElement('img');
+   img.className='photo-slide'+(i===0?' active':'');
+   img.src=photoUrls[i];img.alt='Aapi memory '+(i+1);
+   photoStage.appendChild(img);
+   const dot=document.createElement('button');
+   dot.type='button';dot.className='photo-dot'+(i===0?' active':'');
+   dot.setAttribute('aria-label','Show photo '+(i+1));
+   dot.addEventListener('click',()=>showPhoto(i));
+   photoDots.appendChild(dot);
+   return img;
+ });
+ photoIndex=0;photoControls.hidden=files.length<2;
+});
+document.getElementById('photoPrev').addEventListener('click',()=>showPhoto(photoIndex-1));
+document.getElementById('photoNext').addEventListener('click',()=>showPhoto(photoIndex+1));
+
 const modal=document.getElementById('giftModal');
 function confetti(amount=90){const box=document.getElementById('confetti');const colors=['#4f8b68','#ffd166','#b8e0d2','#cdb4db','#ff9f1c','#f28482'];for(let i=0;i<amount;i++){const p=document.createElement('i');p.className='confetti-piece';p.style.left=Math.random()*100+'%';p.style.background=colors[Math.floor(Math.random()*colors.length)];p.style.setProperty('--drift',(Math.random()*240-120)+'px');p.style.animationDuration=(2.5+Math.random()*3)+'s';p.style.animationDelay=(Math.random()*.7)+'s';box.appendChild(p);setTimeout(()=>p.remove(),6500)}}
 document.getElementById('scrollMoreBtn').addEventListener('click',()=>{document.getElementById('gifts').scrollIntoView({behavior:'smooth',block:'start'})});
