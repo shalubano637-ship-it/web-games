@@ -199,6 +199,15 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeGift()});
 document.getElementById('moreLove').addEventListener('click',()=>{confetti(100);document.getElementById('giftMessage').textContent='One more wish: may Allah keep you safe, healthy, loved, and smiling. Happy Birthday, Aapi! ❤️'});
 document.getElementById('envelope').addEventListener('click',()=>{const letter=document.getElementById('letterText');letter.classList.toggle('open');document.querySelector('.envelope-hint').textContent=letter.classList.contains('open')?'A letter written with love, just for you.':'Tap the envelope to read your letter';if(letter.classList.contains('open')){confetti(65);setTimeout(()=>letter.scrollIntoView({behavior:'smooth',block:'center'}),100)}});
 
+/* Disable finger/wheel scrolling; sections move only through page buttons. */
+html, body {
+  overflow-y: hidden;
+  overscroll-behavior-y: none;
+}
+html {
+  touch-action: pan-x;
+}
+
 /* Start at the top; only the surprise button should scroll to the wishes section. */
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 window.addEventListener('pageshow', () => {
