@@ -50,6 +50,24 @@ button:focus-visible, a:focus-visible, [role="button"]:focus-visible {
   outline-offset: 3px;
 }
 
+
+/* Keep button colors consistent on tap/focus, including Android Chrome. */
+button, button:active, button:focus, button:focus-visible {
+  -webkit-tap-highlight-color: transparent;
+}
+.pill, .pill:active, .pill:focus, .pill:focus-visible {
+  background-color: #c93d70;
+  color: #fff;
+}
+.gift, .gift:active, .gift:focus, .gift:focus-visible {
+  background-color: transparent;
+  color: var(--ink);
+}
+.envelope, .envelope:active, .envelope:focus, .envelope:focus-visible {
+  background: linear-gradient(135deg,#ffbfd2,#ff8eb2);
+  color: #8c2752;
+}
+
 </style>
 </head>
 <body>
