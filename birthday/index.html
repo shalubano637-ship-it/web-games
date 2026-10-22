@@ -149,6 +149,7 @@ footer .heart{color:#b99443}
 .photo-cancel{border:1px solid #c7d9c7;background:transparent;border-radius:999px;padding:10px 14px;color:#244735}
 @media(max-width:520px){.photo-actions{justify-content:flex-start}.photo-auth input{flex-basis:100%}}
 
+.photo-status{margin:0 0 12px;color:#587563;font-size:.9rem;line-height:1.4}
 </style>
 </head>
 <body>
@@ -181,17 +182,10 @@ footer .heart{color:#b99443}
     <div class="photo-carousel" id="photoCarousel">
       <div class="photo-carousel-head">
         <div><div class="section-kicker">Our memories</div><h3>Special photos for Aapi</h3></div>
-        <div class="photo-actions"><button class="upload-photos" id="photoSignInToggle" type="button">Admin sign in</button><label class="upload-photos" for="photoUpload">＋ Upload photos</label></div>
+        <label class="upload-photos" for="photoUpload">＋ Upload photos</label>
         <input id="photoUpload" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple hidden>
       </div>
-      <form id="photoAuthForm" class="photo-auth" hidden>
-        <p>Admin sign-in required to upload photos. Visitors can view saved photos without signing in.</p>
-        <input id="photoEmail" type="email" autocomplete="username" placeholder="Admin email" required>
-        <input id="photoPassword" type="password" autocomplete="current-password" placeholder="Password" required>
-        <button class="upload-photos" type="submit">Sign in</button>
-        <button class="photo-cancel" id="photoAuthCancel" type="button">Cancel</button>
-        <p id="photoStatus" role="status"></p>
-      </form>
+      <p id="photoStatus" class="photo-status" role="status">Photos upload directly without signup.</p>
       <div class="photo-stage" id="photoStage">
         <div class="photo-empty"><span>🖼️</span><strong>Your photos go here</strong><p>Upload one or more pictures to create a swipeable photo carousel.</p></div>
       </div>
@@ -248,8 +242,6 @@ const photoUpload=document.getElementById('photoUpload');
 const photoStage=document.getElementById('photoStage');
 const photoControls=document.getElementById('photoControls');
 const photoDots=document.getElementById('photoDots');
-const photoAuthForm=document.getElementById('photoAuthForm');
-const photoSignInToggle=document.getElementById('photoSignInToggle');
 const photoStatus=document.getElementById('photoStatus');
 let photoSlides=[], photoIndex=0, photoFiles=[];
 function showPhoto(index){
@@ -281,35 +273,9 @@ async function loadSavedPhotos(){
  const items=(data||[]).filter(x=>x.name && !x.name.startsWith('.')).map(x=>({name:x.name,url:photoSupabase.storage.from(PHOTO_BUCKET).getPublicUrl(x.name).data.publicUrl}));
  renderPhotoCarousel(items);
 }
-photoSignInToggle.addEventListener('click',async()=>{
- const {data:{session}}=await photoSupabase.auth.getSession();
- if(session){
-  const {error}=await photoSupabase.auth.signOut();
-  photoSignInToggle.textContent='Admin sign in';
-  photoStatus.textContent=error?'Could not sign out.':'Signed out.';
- }else{
-  photoAuthForm.hidden=!photoAuthForm.hidden;
-  if(!photoAuthForm.hidden)document.getElementById('photoEmail').focus();
- }
-});
-document.getElementById('photoAuthCancel').addEventListener('click',()=>{photoAuthForm.hidden=true;photoStatus.textContent='';});
-photoAuthForm.addEventListener('submit',async e=>{
- e.preventDefault();photoStatus.textContent='Signing in…';
- const {error}=await photoSupabase.auth.signInWithPassword({email:document.getElementById('photoEmail').value.trim(),password:document.getElementById('photoPassword').value});
- if(error){photoStatus.textContent='Sign-in failed. Check the email and password.';return;}
- photoStatus.textContent='Signed in. You can now upload photos.';
- photoSignInToggle.textContent='Sign out';photoAuthForm.hidden=true;
-});
-photoSupabase.auth.getSession().then(({data:{session}})=>{if(session)photoSignInToggle.textContent='Sign out';});
-photoUpload.addEventListener('click',async e=>{
- const {data:{session}}=await photoSupabase.auth.getSession();
- if(!session){e.preventDefault();photoAuthForm.hidden=false;photoStatus.textContent='Please sign in first to upload.';}
-});
 photoUpload.addEventListener('change',async()=>{
  const files=[...photoUpload.files].filter(file=>/^image\/(jpeg|png|webp|gif)$/.test(file.type));
  if(!files.length)return;
- const {data:{session}}=await photoSupabase.auth.getSession();
- if(!session){photoAuthForm.hidden=false;photoStatus.textContent='Please sign in first to upload.';photoUpload.value='';return;}
  photoStatus.textContent='Uploading photos…';
  for(const file of files){
   if(file.size>10*1024*1024){photoStatus.textContent='Each photo must be 10 MB or smaller.';continue;}
