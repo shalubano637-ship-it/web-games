@@ -132,25 +132,25 @@ footer .heart{color:#b99443}
 .photo-carousel{margin:0 auto 54px;padding:22px;background:#fffdf7;border:1px solid #d9e7d3;border-radius:24px;box-shadow:0 14px 36px #315b3d10}
 .photo-carousel-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:18px}
 .photo-carousel-head h3{font:600 clamp(1.35rem,4vw,2rem) 'Playfair Display',serif;color:#176b4d;margin:7px 0 0}
-.upload-photos{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;background:#176b4d;color:#fffaf0;padding:12px 16px;font-weight:700;font-size:.9rem;cursor:pointer;white-space:nowrap}
+
 .photo-stage{position:relative;overflow:hidden;border-radius:18px;background:#eaf3e5;min-height:190px;display:flex;align-items:center;justify-content:center;touch-action:pan-y}
 .photo-empty{text-align:center;padding:32px 20px;color:#587563}.photo-empty span{display:block;font-size:3rem;margin-bottom:8px}.photo-empty strong{display:block;font-size:1.05rem}.photo-empty p{margin:8px 0 0;line-height:1.5;font-size:.9rem}
 .photo-slide{display:none;width:100%;height:clamp(230px,62vw,440px);object-fit:contain;background:#eaf3e5}.photo-slide.active{display:block}
-.photo-delete-btn{position:absolute;top:12px;right:12px;z-index:3;border:0;border-radius:999px;padding:10px 14px;background:#a52828;color:#fff;font-weight:700;font-size:.9rem;box-shadow:0 3px 12px #0003;cursor:pointer}.photo-delete-btn:disabled{opacity:.6;cursor:wait}
+
 .photo-controls{display:flex;align-items:center;justify-content:center;gap:20px;padding-top:14px}
 .photo-controls button{width:40px;height:40px;border:0;border-radius:50%;background:#176b4d;color:#fffaf0;font-size:1.8rem;line-height:1;cursor:pointer}
 .photo-dots{display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap}.photo-dot{width:8px;height:8px;border:0;border-radius:50%;background:#c7d9c7;padding:0;cursor:pointer}.photo-dot.active{background:#176b4d;transform:scale(1.25)}
-@media(max-width:520px){.photo-carousel{padding:15px;margin-bottom:42px}.photo-carousel-head{align-items:flex-start;flex-direction:column}.upload-photos{align-self:flex-start}.photo-stage{min-height:170px}}
+@media(max-width:520px){.photo-carousel{padding:15px;margin-bottom:42px}.photo-carousel-head{align-items:flex-start;flex-direction:column}.photo-stage{min-height:170px}}
 
 
-.photo-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-.photo-auth{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 18px;padding:14px;background:#eaf3e5;border-radius:14px}
-.photo-auth p{width:100%;margin:0;color:#587563;font-size:.9rem;line-height:1.5}
-.photo-auth input{min-width:0;flex:1;padding:12px;border:1px solid #c7d9c7;border-radius:10px;background:#fffdf7;color:#244735}
-.photo-cancel{border:1px solid #c7d9c7;background:transparent;border-radius:999px;padding:10px 14px;color:#244735}
-@media(max-width:520px){.photo-actions{justify-content:flex-start}.photo-auth input{flex-basis:100%}}
 
-.photo-status{margin:0 0 12px;color:#587563;font-size:.9rem;line-height:1.4}
+
+
+
+
+@media(max-width:520px){}
+
+
 </style>
 </head>
 <body>
@@ -183,10 +183,7 @@ footer .heart{color:#b99443}
     <div class="photo-carousel" id="photoCarousel">
       <div class="photo-carousel-head">
         <div><div class="section-kicker">Our memories</div><h3>Special photos for Aapi</h3></div>
-        <label class="upload-photos" for="photoUpload">＋ Upload photos</label>
-        <input id="photoUpload" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple hidden>
       </div>
-      <p id="photoStatus" class="photo-status" role="status">Photos upload directly without signup.</p>
       <div class="photo-stage" id="photoStage">
         <div class="photo-empty"><span>🖼️</span><strong>Your photos go here</strong><p>Upload one or more pictures to create a swipeable photo carousel.</p></div>
       </div>
@@ -239,12 +236,10 @@ const SUPABASE_URL='https://mltvpfqfhbhgkejcjpmq.supabase.co';
 const SUPABASE_KEY='sb_publishable_3c2SHzm3Y8u_pjbmpWNSXw_5Rwkn5b_';
 const photoSupabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const PHOTO_BUCKET='aapi-birthday-photos';
-const photoUpload=document.getElementById('photoUpload');
 const photoStage=document.getElementById('photoStage');
 const photoControls=document.getElementById('photoControls');
 const photoDots=document.getElementById('photoDots');
-const photoStatus=document.getElementById('photoStatus');
-let photoSlides=[], photoIndex=0, photoFiles=[], photoItems=[];
+let photoSlides=[], photoIndex=0, photoItems=[];
 function showPhoto(index){
  if(!photoSlides.length)return;
  photoIndex=(index+photoSlides.length)%photoSlides.length;
@@ -266,24 +261,7 @@ function renderPhotoCarousel(items){
   return img;
  });
  photoIndex=0;photoControls.hidden=items.length<2;
- const deleteBtn=document.createElement('button');
- deleteBtn.type='button';deleteBtn.className='photo-delete-btn';deleteBtn.textContent='🗑 Delete photo';
- deleteBtn.setAttribute('aria-label','Delete currently displayed photo');
- deleteBtn.addEventListener('click',()=>deleteSavedPhoto(photoItems[photoIndex],deleteBtn));
- photoStage.appendChild(deleteBtn);
-}
-async function deleteSavedPhoto(item,button){
- if(!item || !item.name)return;
- if(!window.confirm('Delete this photo permanently for everyone?'))return;
- button.disabled=true;button.textContent='Deleting…';
- photoStatus.textContent='Deleting photo…';
- const {error}=await photoSupabase.storage.from(PHOTO_BUCKET).remove([item.name]);
- if(error){
-  photoStatus.textContent='Could not delete photo. Check Supabase Storage delete permissions.';
-  button.disabled=false;button.textContent='🗑 Delete photo';return;
- }
- photoStatus.textContent='Photo deleted.';
- await loadSavedPhotos();
+
 }
 async function loadSavedPhotos(){
  photoStage.innerHTML='<div class="photo-empty"><span>⏳</span><strong>Loading saved photos…</strong></div>';
@@ -292,22 +270,6 @@ async function loadSavedPhotos(){
  const items=(data||[]).filter(x=>x.name && !x.name.startsWith('.')).map(x=>({name:x.name,url:photoSupabase.storage.from(PHOTO_BUCKET).getPublicUrl(x.name).data.publicUrl}));
  renderPhotoCarousel(items);
 }
-photoUpload.addEventListener('change',async()=>{
- const files=[...photoUpload.files].filter(file=>/^image\/(jpeg|png|webp|gif)$/.test(file.type));
- if(!files.length)return;
- photoStatus.textContent='Uploading photos…';
- for(const file of files){
-  if(file.size>10*1024*1024){photoStatus.textContent='Each photo must be 10 MB or smaller.';continue;}
-  const safeName=file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
-  const path=Date.now()+'-'+crypto.randomUUID()+'-'+safeName;
-  const {error}=await photoSupabase.storage.from(PHOTO_BUCKET).upload(path,file,{cacheControl:'3600',upsert:false,contentType:file.type});
-  if(error){photoStatus.textContent='Upload failed. Check storage permissions and try again.';photoUpload.value='';return;}
- }
- photoStatus.textContent='Photos saved. Refreshing carousel…';
- photoUpload.value='';
- await loadSavedPhotos();
- photoStatus.textContent='Photos uploaded and saved for all visitors.';
-});
 document.getElementById('photoPrev').addEventListener('click',()=>showPhoto(photoIndex-1));
 document.getElementById('photoNext').addEventListener('click',()=>showPhoto(photoIndex+1));
 loadSavedPhotos();
