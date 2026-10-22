@@ -141,6 +141,14 @@ footer .heart{color:#b99443}
 .photo-dots{display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap}.photo-dot{width:8px;height:8px;border:0;border-radius:50%;background:#c7d9c7;padding:0;cursor:pointer}.photo-dot.active{background:#176b4d;transform:scale(1.25)}
 @media(max-width:520px){.photo-carousel{padding:15px;margin-bottom:42px}.photo-carousel-head{align-items:flex-start;flex-direction:column}.upload-photos{align-self:flex-start}.photo-stage{min-height:170px}}
 
+
+.photo-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.photo-auth{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 18px;padding:14px;background:#eaf3e5;border-radius:14px}
+.photo-auth p{width:100%;margin:0;color:#587563;font-size:.9rem;line-height:1.5}
+.photo-auth input{min-width:0;flex:1;padding:12px;border:1px solid #c7d9c7;border-radius:10px;background:#fffdf7;color:#244735}
+.photo-cancel{border:1px solid #c7d9c7;background:transparent;border-radius:999px;padding:10px 14px;color:#244735}
+@media(max-width:520px){.photo-actions{justify-content:flex-start}.photo-auth input{flex-basis:100%}}
+
 </style>
 </head>
 <body>
@@ -173,9 +181,17 @@ footer .heart{color:#b99443}
     <div class="photo-carousel" id="photoCarousel">
       <div class="photo-carousel-head">
         <div><div class="section-kicker">Our memories</div><h3>Special photos for Aapi</h3></div>
-        <label class="upload-photos" for="photoUpload">＋ Upload photos</label>
-        <input id="photoUpload" type="file" accept="image/*" multiple hidden>
+        <div class="photo-actions"><button class="upload-photos" id="photoSignInToggle" type="button">Admin sign in</button><label class="upload-photos" for="photoUpload">＋ Upload photos</label></div>
+        <input id="photoUpload" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple hidden>
       </div>
+      <form id="photoAuthForm" class="photo-auth" hidden>
+        <p>Admin sign-in required to upload photos. Visitors can view saved photos without signing in.</p>
+        <input id="photoEmail" type="email" autocomplete="username" placeholder="Admin email" required>
+        <input id="photoPassword" type="password" autocomplete="current-password" placeholder="Password" required>
+        <button class="upload-photos" type="submit">Sign in</button>
+        <button class="photo-cancel" id="photoAuthCancel" type="button">Cancel</button>
+        <p id="photoStatus" role="status"></p>
+      </form>
       <div class="photo-stage" id="photoStage">
         <div class="photo-empty"><span>🖼️</span><strong>Your photos go here</strong><p>Upload one or more pictures to create a swipeable photo carousel.</p></div>
       </div>
@@ -216,6 +232,7 @@ footer .heart{color:#b99443}
 <div class="modal" id="giftModal" role="dialog" aria-modal="true" aria-labelledby="giftTitle">
   <div class="modal-card"><button class="close" id="closeModal" aria-label="Close">×</button><div class="big" id="giftEmoji">🎁</div><h3 id="giftTitle">A little gift</h3><p id="giftMessage"></p><button class="pill" id="moreLove">Send more love ✨</button></div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const gifts=[
  {emoji:'🎁',title:'A box full of smiles',message:'Your gift today is a reminder that you deserve happiness in every season of life. May the year ahead surprise you with beautiful moments, kind people, and lots of laughter.'},
@@ -223,40 +240,92 @@ const gifts=[
  {emoji:'💌',title:'A tiny note, a huge amount of love',message:'No gift could ever fully say how much you mean to me. Thank you for being my big sister. I am always wishing the best for you, today and every day.'}
 ];
 
+const SUPABASE_URL='https://mltvpfqfhbhgkejcjpmq.supabase.co';
+const SUPABASE_KEY='sb_publishable_3c2SHzm3Y8u_pjbmpWNSXw_5Rwkn5b_';
+const photoSupabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const PHOTO_BUCKET='aapi-birthday-photos';
 const photoUpload=document.getElementById('photoUpload');
 const photoStage=document.getElementById('photoStage');
 const photoControls=document.getElementById('photoControls');
 const photoDots=document.getElementById('photoDots');
-let photoSlides=[], photoIndex=0, photoUrls=[];
+const photoAuthForm=document.getElementById('photoAuthForm');
+const photoSignInToggle=document.getElementById('photoSignInToggle');
+const photoStatus=document.getElementById('photoStatus');
+let photoSlides=[], photoIndex=0, photoFiles=[];
 function showPhoto(index){
  if(!photoSlides.length)return;
  photoIndex=(index+photoSlides.length)%photoSlides.length;
  photoSlides.forEach((img,i)=>img.classList.toggle('active',i===photoIndex));
  [...photoDots.children].forEach((dot,i)=>dot.classList.toggle('active',i===photoIndex));
 }
-photoUpload.addEventListener('change',()=>{
- const files=[...photoUpload.files].filter(file=>file.type.startsWith('image/'));
- if(!files.length)return;
- photoUrls.forEach(url=>URL.revokeObjectURL(url));
- photoUrls=files.map(file=>URL.createObjectURL(file));
- photoStage.innerHTML='';
- photoDots.innerHTML='';
- photoSlides=files.map((file,i)=>{
-   const img=document.createElement('img');
-   img.className='photo-slide'+(i===0?' active':'');
-   img.src=photoUrls[i];img.alt='Aapi memory '+(i+1);
-   photoStage.appendChild(img);
-   const dot=document.createElement('button');
-   dot.type='button';dot.className='photo-dot'+(i===0?' active':'');
-   dot.setAttribute('aria-label','Show photo '+(i+1));
-   dot.addEventListener('click',()=>showPhoto(i));
-   photoDots.appendChild(dot);
-   return img;
+function renderPhotoCarousel(items){
+ photoStage.innerHTML='';photoDots.innerHTML='';photoSlides=[];
+ if(!items.length){
+  photoStage.innerHTML='<div class="photo-empty"><span>🖼️</span><strong>Your photos go here</strong><p>Photos uploaded by Aapi will be saved here for everyone to see.</p></div>';
+  photoControls.hidden=true;return;
+ }
+ photoSlides=items.map((item,i)=>{
+  const img=document.createElement('img');
+  img.className='photo-slide'+(i===0?' active':'');img.src=item.url;img.alt='Aapi memory '+(i+1);img.loading=i===0?'eager':'lazy';
+  photoStage.appendChild(img);
+  const dot=document.createElement('button');dot.type='button';dot.className='photo-dot'+(i===0?' active':'');
+  dot.setAttribute('aria-label','Show photo '+(i+1));dot.addEventListener('click',()=>showPhoto(i));photoDots.appendChild(dot);
+  return img;
  });
- photoIndex=0;photoControls.hidden=files.length<2;
+ photoIndex=0;photoControls.hidden=items.length<2;
+}
+async function loadSavedPhotos(){
+ photoStage.innerHTML='<div class="photo-empty"><span>⏳</span><strong>Loading saved photos…</strong></div>';
+ const {data,error}=await photoSupabase.storage.from(PHOTO_BUCKET).list('',{limit:100,sortBy:{column:'created_at',order:'asc'}});
+ if(error){photoStage.innerHTML='<div class="photo-empty"><span>⚠️</span><strong>Photos could not load</strong><p>Check the storage setup in Supabase.</p></div>';return;}
+ const items=(data||[]).filter(x=>x.name && !x.name.startsWith('.')).map(x=>({name:x.name,url:photoSupabase.storage.from(PHOTO_BUCKET).getPublicUrl(x.name).data.publicUrl}));
+ renderPhotoCarousel(items);
+}
+photoSignInToggle.addEventListener('click',async()=>{
+ const {data:{session}}=await photoSupabase.auth.getSession();
+ if(session){
+  const {error}=await photoSupabase.auth.signOut();
+  photoSignInToggle.textContent='Admin sign in';
+  photoStatus.textContent=error?'Could not sign out.':'Signed out.';
+ }else{
+  photoAuthForm.hidden=!photoAuthForm.hidden;
+  if(!photoAuthForm.hidden)document.getElementById('photoEmail').focus();
+ }
+});
+document.getElementById('photoAuthCancel').addEventListener('click',()=>{photoAuthForm.hidden=true;photoStatus.textContent='';});
+photoAuthForm.addEventListener('submit',async e=>{
+ e.preventDefault();photoStatus.textContent='Signing in…';
+ const {error}=await photoSupabase.auth.signInWithPassword({email:document.getElementById('photoEmail').value.trim(),password:document.getElementById('photoPassword').value});
+ if(error){photoStatus.textContent='Sign-in failed. Check the email and password.';return;}
+ photoStatus.textContent='Signed in. You can now upload photos.';
+ photoSignInToggle.textContent='Sign out';photoAuthForm.hidden=true;
+});
+photoSupabase.auth.getSession().then(({data:{session}})=>{if(session)photoSignInToggle.textContent='Sign out';});
+photoUpload.addEventListener('click',async e=>{
+ const {data:{session}}=await photoSupabase.auth.getSession();
+ if(!session){e.preventDefault();photoAuthForm.hidden=false;photoStatus.textContent='Please sign in first to upload.';}
+});
+photoUpload.addEventListener('change',async()=>{
+ const files=[...photoUpload.files].filter(file=>/^image\/(jpeg|png|webp|gif)$/.test(file.type));
+ if(!files.length)return;
+ const {data:{session}}=await photoSupabase.auth.getSession();
+ if(!session){photoAuthForm.hidden=false;photoStatus.textContent='Please sign in first to upload.';photoUpload.value='';return;}
+ photoStatus.textContent='Uploading photos…';
+ for(const file of files){
+  if(file.size>10*1024*1024){photoStatus.textContent='Each photo must be 10 MB or smaller.';continue;}
+  const safeName=file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+  const path=Date.now()+'-'+crypto.randomUUID()+'-'+safeName;
+  const {error}=await photoSupabase.storage.from(PHOTO_BUCKET).upload(path,file,{cacheControl:'3600',upsert:false,contentType:file.type});
+  if(error){photoStatus.textContent='Upload failed. Check storage permissions and try again.';photoUpload.value='';return;}
+ }
+ photoStatus.textContent='Photos saved. Refreshing carousel…';
+ photoUpload.value='';
+ await loadSavedPhotos();
+ photoStatus.textContent='Photos uploaded and saved for all visitors.';
 });
 document.getElementById('photoPrev').addEventListener('click',()=>showPhoto(photoIndex-1));
 document.getElementById('photoNext').addEventListener('click',()=>showPhoto(photoIndex+1));
+loadSavedPhotos();
 
 const modal=document.getElementById('giftModal');
 function confetti(amount=90){const box=document.getElementById('confetti');const colors=['#4f8b68','#ffd166','#b8e0d2','#cdb4db','#ff9f1c','#f28482'];for(let i=0;i<amount;i++){const p=document.createElement('i');p.className='confetti-piece';p.style.left=Math.random()*100+'%';p.style.background=colors[Math.floor(Math.random()*colors.length)];p.style.setProperty('--drift',(Math.random()*240-120)+'px');p.style.animationDuration=(2.5+Math.random()*3)+'s';p.style.animationDelay=(Math.random()*.7)+'s';box.appendChild(p);setTimeout(()=>p.remove(),6500)}}
