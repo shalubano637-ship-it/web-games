@@ -33,6 +33,23 @@ footer{text-align:center;padding:36px 20px;color:#a16e85;font-size:.85rem}footer
 @keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}@keyframes float{0%,100%{transform:translateY(0) rotate(-7deg)}50%{transform:translateY(-20px) rotate(8deg)}}@keyframes bob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-10px) rotate(2deg)}}@keyframes fall{to{transform:translate3d(var(--drift),110vh,0) rotate(720deg);opacity:.8}}
 @media(max-width:650px){.wish-grid{grid-template-columns:1fr}.wish{padding:21px}.gift-grid{grid-template-columns:1fr;gap:8px}.gift{display:flex;align-items:center;text-align:left;gap:18px;background:#fff9fb;border:1px solid #f8dce7;padding:12px 18px}.gift-art{height:86px;width:88px;flex-shrink:0;font-size:3.6rem}.f1{left:4%;top:10%}.f2{right:4%;top:13%}.f3{left:5%;bottom:8%}.f4{right:5%;bottom:7%}section{padding:66px 18px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}
+
+/* Remove the blue tap/focus flash on mobile and keep accessible keyboard focus. */
+html, body, button, a, [role="button"] {
+  -webkit-tap-highlight-color: transparent;
+}
+button, a, [role="button"] {
+  outline: none;
+}
+button:focus:not(:focus-visible), a:focus:not(:focus-visible), [role="button"]:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+button:focus-visible, a:focus-visible, [role="button"]:focus-visible {
+  outline: 2px solid #c93d70;
+  outline-offset: 3px;
+}
+
 </style>
 </head>
 <body>
