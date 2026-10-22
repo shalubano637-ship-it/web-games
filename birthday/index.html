@@ -68,6 +68,21 @@ button, button:active, button:focus, button:focus-visible {
   color: #8c2752;
 }
 
+
+/* Prevent Android long-press text selection / Google lookup popups on the birthday page. */
+html, body, body * {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+body {
+  -webkit-user-select: none;
+  user-select: none;
+}
+input, textarea, [contenteditable="true"] {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
 </style>
 </head>
 <body>
