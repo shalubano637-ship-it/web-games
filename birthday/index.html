@@ -126,6 +126,9 @@ footer .heart{color:#b99443}
 
 /* Keep the page scrollable by code, but block manual touch/wheel scrolling. */
 html, body { overflow-y: auto; overscroll-behavior-y: none; }
+
+.more-btn{margin-top:16px;padding:9px 16px;border:1px solid #176b4d;border-radius:999px;background:#176b4d;color:#fffaf0;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.more-btn:active,.more-btn:focus{background:#176b4d;color:#fffaf0}
 </style>
 </head>
 <body>
@@ -146,9 +149,9 @@ html, body { overflow-y: auto; overscroll-behavior-y: none; }
     <div class="section-kicker">A few wishes for you</div><h2>You deserve all the good things</h2>
     <p class="sub">A big sister is part guide, part best friend, and part home. Here are a few things I wish for you, today and always.</p>
     <div class="wish-grid">
-      <article class="wish"><div class="emoji">🌸</div><h3>Endless happiness</h3><p>May your days be full of laughter, your heart feel light, and your life bring you countless reasons to smile.</p></article>
-      <article class="wish"><div class="emoji">🌟</div><h3>Dreams come true</h3><p>May every dream you quietly hold close find its way to you, one beautiful step at a time.</p></article>
-      <article class="wish"><div class="emoji">🫶</div><h3>Love and peace</h3><p>May you always be surrounded by people who value you, support you, and remind you how special you are.</p></article>
+      <article class="wish"><div class="emoji">🌸</div><h3>Endless happiness</h3><p>May your days be full of laughter, your heart feel light, and your life bring you countless reasons to smile.</p><button class="more-btn" data-more="0">More</button></article>
+      <article class="wish"><div class="emoji">🌟</div><h3>Dreams come true</h3><p>May every dream you quietly hold close find its way to you, one beautiful step at a time.</p><button class="more-btn" data-more="1">More</button></article>
+      <article class="wish"><div class="emoji">🫶</div><h3>Love and peace</h3><p>May you always be surrounded by people who value you, support you, and remind you how special you are.</p><button class="more-btn" data-more="2">More</button></article>
     </div>
   </div>
 </section>
@@ -194,6 +197,19 @@ const gifts=[
 const modal=document.getElementById('giftModal');
 function confetti(amount=90){const box=document.getElementById('confetti');const colors=['#4f8b68','#ffd166','#b8e0d2','#cdb4db','#ff9f1c','#f28482'];for(let i=0;i<amount;i++){const p=document.createElement('i');p.className='confetti-piece';p.style.left=Math.random()*100+'%';p.style.background=colors[Math.floor(Math.random()*colors.length)];p.style.setProperty('--drift',(Math.random()*240-120)+'px');p.style.animationDuration=(2.5+Math.random()*3)+'s';p.style.animationDelay=(Math.random()*.7)+'s';box.appendChild(p);setTimeout(()=>p.remove(),6500)}}
 document.getElementById('startBtn').addEventListener('click',()=>{confetti(120);document.getElementById('wishes').scrollIntoView({behavior:'smooth'})});
+const moreMessages = [
+ {emoji:'🌸',title:'A wish for endless happiness',message:'Aapi, may Allah fill your days with peace, laughter, and contentment. May you find comfort when life feels difficult and little reasons to smile even on ordinary days.'},
+ {emoji:'🌟',title:'A wish for your dreams',message:'May Allah open the best doors for you, bless your efforts, and guide you toward what is good for you. May your hopes become beautiful realities at the right time.'},
+ {emoji:'🫶',title:'A wish for love and peace',message:'May you always have sincere people around you, a peaceful heart, good health, and a home filled with kindness and barakah. You deserve care and respect every day.'}
+];
+document.querySelectorAll('[data-more]').forEach(btn=>btn.addEventListener('click',()=>{
+ const m=moreMessages[Number(btn.dataset.more)];
+ document.getElementById('giftEmoji').textContent=m.emoji;
+ document.getElementById('giftTitle').textContent=m.title;
+ document.getElementById('giftMessage').textContent=m.message;
+ modal.classList.add('show');
+}));
+
 document.querySelectorAll('[data-gift]').forEach(btn=>btn.addEventListener('click',()=>{const g=gifts[Number(btn.dataset.gift)];document.getElementById('giftEmoji').textContent=g.emoji;document.getElementById('giftTitle').textContent=g.title;document.getElementById('giftMessage').textContent=g.message;modal.classList.add('show');confetti(45)}));
 function closeGift(){modal.classList.remove('show')}
 document.getElementById('closeModal').addEventListener('click',closeGift);
